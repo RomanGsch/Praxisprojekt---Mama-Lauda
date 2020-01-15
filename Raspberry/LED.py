@@ -1,12 +1,19 @@
+from mq import *  # import mq??
 import RPi.GPIO as GPIO
-import time
+
+pin_led = 22
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(8, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(pin_led, GPIO.OUT, initial=GPIO.LOW)
 
-while True:
-    GPIO.output(8, GPIO.HIGH)
-    time.sleep(1)
-    GPIO.output(8, GPIO.LOW)
-    time.sleep(1)
+mq = MQ()
+sensor_rauch = mq.MQPercentage()
+gas_lpg = sensor_rauch["GAS_LPG"]
+co2 = sensor_rauch["CO"]
+rauch = sensor_rauch["SMOKE"]
+
+if rauch > 60:
+    GPIO.output(pin_led, GPIO.HIGH)
+else:
+    GPIO.output(pin_led, GPIO.LOW)
