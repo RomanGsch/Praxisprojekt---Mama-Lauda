@@ -1,6 +1,6 @@
 //Sensor
-const int triggerPin = 2;
-const int echoPin = 3;
+const int triggerPin = 4;
+const int echoPin = 5;
 long dauer, abst;
 
 //Motor 1
