@@ -5,7 +5,7 @@ pin_rpm_left = 6  # lt. schaltplan
 pin_rpm_right = 13  # lt. schaltplan
 
 GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin_rpm_left, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(pin_rpm_right, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 

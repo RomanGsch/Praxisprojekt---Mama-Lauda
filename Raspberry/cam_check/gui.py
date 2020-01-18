@@ -1,6 +1,5 @@
 from tkinter import *
 import RPi.GPIO as GPIO
-import image
 from PIL import Image, ImageTk
 from subprocess import Popen, PIPE
 
