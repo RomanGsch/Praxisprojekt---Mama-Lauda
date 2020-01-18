@@ -2,10 +2,12 @@ from mq import *  # import mq??
 import RPi.GPIO as GPIO
 
 pin_led = 22
+pin_rauch = 5
 
 GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin_led, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(pin_rauch, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 mq = MQ()
 sensor_rauch = mq.MQPercentage()
