@@ -1,22 +1,22 @@
 //US1-Mitte
-const int triggerPinM = 4;
-const int echoPinM = 5;
+const int triggerPinM = 3;
+const int echoPinM = 8;
 
 //US2-Links
 const int triggerPinL = 2;
-const int echoPinL = 3;
+const int echoPinL = 7;
 
 //US3-Rechts
-const int triggerPinR = 10;
-const int echoPinR = 11;
+const int triggerPinR = 4;
+const int echoPinR = 9;
 
 //Motor 1
-const int motorPin1 = 7;
-const int motorPin2  = 6;
+const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
+const int motorTreiberPin2  = 6; //motorTreiberPin2 -> ArduinoOut6
 
 //Motor 2
-const int motorPin3  = 9;
-const int motorPin4  = 8;
+const int motorTreiberPin3  = 10;//motorTreiberPin3 -> ArduinoOut10
+const int motorTreiberPin4  = 11; //motorTreiberPin4 -> ArduinoOut11
 
 long dauer, abst, abstLR, Abstandlinks, Abstandrechts;
 
@@ -50,26 +50,26 @@ long pingLR(int triggerPin, int echoPin, String Richtung){
 
 void Abstandsvergleich(){
   if (Abstandlinks > Abstandrechts){
-    analogWrite(motorPin4, LinksBackward);
-    analogWrite(motorPin1, RechtsForward);
+    analogWrite(motorTreiberPin4, LinksBackward);
+    analogWrite(motorTreiberPin1, RechtsForward);
     Serial.println("Rechts Ausweichen");
     delay(1000);
-    analogWrite(motorPin3, LinksForward);
-    analogWrite(motorPin2, RechtsForward);
+    analogWrite(motorTreiberPin3, LinksForward);
+    analogWrite(motorTreiberPin2, RechtsForward);
     delay(1000);
   }
   else if (Abstandrechts > Abstandlinks){
-    analogWrite(motorPin3, LinksForward);
-    analogWrite(motorPin2, RechtsBackward);
+    analogWrite(motorTreiberPin3, LinksForward);
+    analogWrite(motorTreiberPin2, RechtsBackward);
     Serial.println("Links Ausweichen");
     delay(1000);
-    analogWrite(motorPin3, LinksForward);
-    analogWrite(motorPin1, RechtsForward);
+    analogWrite(motorTreiberPin3, LinksForward);
+    analogWrite(motorTreiberPin1, RechtsForward);
     delay(1000);
   }
   else{
-    analogWrite(motorPin3, LinksForward);
-    analogWrite(motorPin2, RechtsBackward);
+    analogWrite(motorTreiberPin3, LinksForward);
+    analogWrite(motorTreiberPin2, RechtsBackward);
     delay(1000);
     Serial.println("180° Drehung");
   }
@@ -78,25 +78,25 @@ void Abstandsvergleich(){
 
 void fahren(){
   //Motor Control A in both directions
-  analogWrite(motorPin1, speed1);
+  analogWrite(motorTreiberPin1, speed1);
   //Motor Control B in both directions
-  analogWrite(motorPin3, speed2);
+  analogWrite(motorTreiberPin3, speed2);
   Serial.println("Fahren");
 }
 
 void bremsen(){
   //Motor Control A in both directions
-  analogWrite(motorPin1, 0);
+  analogWrite(motorTreiberPin1, 0);
   //Motor Control B in both directions
-  analogWrite(motorPin3, 0);
+  analogWrite(motorTreiberPin3, 0);
   Serial.println("Bremsen");
 }
 
 void rechts(){
   //Motor Control A in both directions
-  analogWrite(motorPin1, 0);
+  analogWrite(motorTreiberPin1, 0);
   //Motor Control B in both directions
-  analogWrite(motorPin3, speed1);
+  analogWrite(motorTreiberPin3, speed1);
   delay(1000);
   Serial.println("Rechts");
 }
@@ -105,10 +105,10 @@ void rechts(){
 void setup(){
     Serial.begin(9600);
     //Set pins as outputs
-    pinMode(motorPin1, OUTPUT);
-    //pinMode(motorPin2, OUTPUT);
-    pinMode(motorPin3, OUTPUT);
-    //pinMode(motorPin4, OUTPUT);
+    pinMode(motorTreiberPin1, OUTPUT);
+    //pinMode(motorTreiberPin2, OUTPUT);
+    pinMode(motorTreiberPin3, OUTPUT);
+    //pinMode(motorTreiberPin4, OUTPUT);
     pinMode(triggerPinM, OUTPUT);
     pinMode(echoPinM, INPUT);
     pinMode(triggerPinL, OUTPUT);
