@@ -18,15 +18,15 @@ const int motorTreiberPin2  = 6; //motorTreiberPin2 -> ArduinoOut6
 const int motorTreiberPin3  = 10;//motorTreiberPin3 -> ArduinoOut10
 const int motorTreiberPin4  = 11; //motorTreiberPin4 -> ArduinoOut11
 
-long dauer, abst, abstLR, Abstandlinks, Abstandrechts;
+long dauer, abst, abstLR, abstL, abstR;
 
-int speed1 = 180;
-int speed2 = 180;
+int speed1 = 200;
+//int speed2 = 200; //eventuell erst benötigt wenn ausgleich der beiden seiten sein muss (gerade aus fahren)
 
-const int RechtsForward = 200; //max Speed soll lt. Datenblatt bei 180 sein
-const int RechtsBackward = 180;
-const int LinksForward = 200;
-const int LinksBackward = 180;
+//const int RechtsForward = 200; //max Speed soll lt. Datenblatt bei 180 sein
+//const int RechtsBackward = 200;
+//const int LinksForward = 200;
+//const int LinksBackward = 200;
 
 //zur Messung von mit US
 long messen(int triggerPin, int echoPin, String Richtung){
@@ -48,28 +48,38 @@ long pingLR(int triggerPin, int echoPin, String Richtung){
   return abstLR;
 }
 
-void Abstandsvergleich(){
-  if (Abstandlinks > Abstandrechts){
-    analogWrite(motorTreiberPin4, LinksBackward);
-    analogWrite(motorTreiberPin1, RechtsForward);
+void abstVgl(int abstL, int abstR){
+  if (abstL > abstR){
+    analogWrite(motorTreiberPin3, 0);
+    analogWrite(motorTreiberPin4, speed1);
+    analogWrite(motorTreiberPin2, 0);
+    analogWrite(motorTreiberPin1, speed1);
     Serial.println("Rechts Ausweichen");
     delay(1000);
-    analogWrite(motorTreiberPin3, LinksForward);
-    analogWrite(motorTreiberPin2, RechtsForward);
+    analogWrite(motorTreiberPin4, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin1, 0);
+    analogWrite(motorTreiberPin2, speed1);
     delay(1000);
   }
-  else if (Abstandrechts > Abstandlinks){
-    analogWrite(motorTreiberPin3, LinksForward);
-    analogWrite(motorTreiberPin2, RechtsBackward);
+  else if (abstR > abstL){
+    analogWrite(motorTreiberPin4, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin1, 0);
+    analogWrite(motorTreiberPin2, speed1);
     Serial.println("Links Ausweichen");
     delay(1000);
-    analogWrite(motorTreiberPin3, LinksForward);
-    analogWrite(motorTreiberPin1, RechtsForward);
+    analogWrite(motorTreiberPin4, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin2, 0);
+    analogWrite(motorTreiberPin1, speed1);
     delay(1000);
   }
   else{
-    analogWrite(motorTreiberPin3, LinksForward);
-    analogWrite(motorTreiberPin2, RechtsBackward);
+    analogWrite(motorTreiberPin4, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin1, 0);
+    analogWrite(motorTreiberPin2, speed1);
     delay(1000);
     Serial.println("180° Drehung");
   }
@@ -79,8 +89,10 @@ void Abstandsvergleich(){
 void fahren(){
   //Motor Control A in both directions
   analogWrite(motorTreiberPin1, speed1);
+  analogWrite(motorTreiberPin2, 0);
   //Motor Control B in both directions
-  analogWrite(motorTreiberPin3, speed2);
+  analogWrite(motorTreiberPin3, speed1);
+  analogWrite(motorTreiberPin4, 0);
   Serial.println("Fahren");
 }
 
@@ -119,18 +131,20 @@ void setup(){
 
 void loop(){
   abst = messen(triggerPinM, echoPinM, "Mitte");
-  
+  fahren();
   if(abst<=30){
     bremsen();
-    delay(1000);
-    Abstandlinks = pingLR(triggerPinL, echoPinL, "Links");
-    delay(10);
-    Abstandrechts = pingLR(triggerPinR, echoPinR, "Rechts");
-    delay(10);
-    Abstandsvergleich();
+    delay(100);
+    abstL = pingLR(triggerPinL, echoPinL, "Links");
+    delay(100);
+    abstR = pingLR(triggerPinR, echoPinR, "Rechts");
+    delay(100);
+    abstVgl(abstL, abstR);
   }
   
   else{
-    fahren();   
+    fahren();
+    
   }
+  delay(1000);
 }
