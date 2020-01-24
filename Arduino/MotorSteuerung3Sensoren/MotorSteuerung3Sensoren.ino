@@ -3,24 +3,24 @@ const int triggerPinM = 3;
 const int echoPinM = 8;
 
 //US2-Links
-const int triggerPinL = 2;
-const int echoPinL = 7;
+const int triggerPinL = 4;
+const int echoPinL = 9;
 
 //US3-Rechts
-const int triggerPinR = 4;
-const int echoPinR = 9;
+const int triggerPinR = 2;
+const int echoPinR = 7;
 
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
 const int motorTreiberPin2  = 6; //motorTreiberPin2 -> ArduinoOut6
 
 //Motor 2
-const int motorTreiberPin3  = 10;//motorTreiberPin3 -> ArduinoOut10
-const int motorTreiberPin4  = 11; //motorTreiberPin4 -> ArduinoOut11
+const int motorTreiberPin3  = 11;//motorTreiberPin3 -> ArduinoOut10
+const int motorTreiberPin4  = 10; //motorTreiberPin4 -> ArduinoOut11
 
 long dauer, abst, abstLR, abstL, abstR;
 
-int speed1 = 200;
+int speed1 = 255;
 //int speed2 = 200; //eventuell erst benötigt wenn ausgleich der beiden seiten sein muss (gerade aus fahren)
 
 //const int RechtsForward = 200; //max Speed soll lt. Datenblatt bei 180 sein
@@ -55,12 +55,12 @@ void abstVgl(int abstL, int abstR){
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed1);
     Serial.println("Rechts Ausweichen");
-    delay(1000);
+    delay(2000);
     analogWrite(motorTreiberPin4, 0);
     analogWrite(motorTreiberPin3, speed1);
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed1);
-    delay(1000);
+    delay(2000);
   }
   else if (abstR > abstL){
     analogWrite(motorTreiberPin4, 0);
@@ -68,19 +68,19 @@ void abstVgl(int abstL, int abstR){
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed1);
     Serial.println("Links Ausweichen");
-    delay(1000);
+    delay(2000);
     analogWrite(motorTreiberPin4, 0);
     analogWrite(motorTreiberPin3, speed1);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed1);
-    delay(1000);
+    delay(2000);
   }
   else{
     analogWrite(motorTreiberPin4, 0);
     analogWrite(motorTreiberPin3, speed1);
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed1);
-    delay(1000);
+    delay(2000);
     Serial.println("180° Drehung");
   }
 }
@@ -146,5 +146,4 @@ void loop(){
     fahren();
     
   }
-  delay(1000);
 }
