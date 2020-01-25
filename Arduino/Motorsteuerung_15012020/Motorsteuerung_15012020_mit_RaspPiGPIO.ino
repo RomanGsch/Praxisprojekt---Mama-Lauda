@@ -8,6 +8,9 @@ DallasTemperature sensors(&oneWire);
 //Lanze
 int tempLanze;
 
+//start
+int startPinRP = A0;
+
 //US1-Mitte
 const int triggerPinM = 3;
 const int echoPinM = 8;
@@ -150,29 +153,31 @@ void setup(){
     pinMode(echoPinR, INPUT);
     pinMode(triggerPinH, OUTPUT);
     pinMode(echoPinH, INPUT);
+    pinMode(startPin, INPUT);
     sensors.begin();
 
 }
 
 void loop(){
-  abst = messen(triggerPinM, echoPinM, "Mitte");
-  //abstlinks = messen(triggerPinL, echoPinL, "Links");
-  //abstrechts = messen(triggerPinR, echoPinR, "Rechts");
-  fahren();
-  sensors.requestTemperatures();
-  tempLanze = (sensors.getTempCByIndex(0));
-  if(abst<=50){
-    bremsen();
-    abstL = pingLR(triggerPinL, echoPinL, "Links");
-    delay(200);
-    abstR = pingLR(triggerPinR, echoPinR, "Rechts");
-    delay(200);
-    abstVgl(abstL, abstR);
-    Serial.print("Temperatur an Lanze: ");
-    Serial.print(sensors.getTempCByIndex(0));
-    Serial.println(" °C");
-  }
-  else{
+  while(digitalRead(startPinRP) == HIGH){
+    abst = 0;
+    abst = messen(triggerPinM, echoPinM, "Mitte");
     fahren();
+    sensors.requestTemperatures();
+    tempLanze = (sensors.getTempCByIndex(0));
+    if(abst<=50){
+      bremsen();
+      abstL = pingLR(triggerPinL, echoPinL, "Links");
+      delay(200);
+      abstR = pingLR(triggerPinR, echoPinR, "Rechts");
+      delay(200);
+      abstVgl(abstL, abstR);
+      Serial.print("Temperatur an Lanze: ");
+      Serial.print(sensors.getTempCByIndex(0));
+      Serial.println(" °C");
+    }
+    else{
+      fahren();
+    }
   }
 }
