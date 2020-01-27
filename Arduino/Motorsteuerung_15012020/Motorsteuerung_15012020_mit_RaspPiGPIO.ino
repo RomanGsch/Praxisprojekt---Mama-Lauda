@@ -70,13 +70,37 @@ void abstVgl(int abstL, int abstR){
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed2);
     delay(1000);
-  }
-  else if (abstR > abstL){
-    Serial.println("Links Ausweichen");
+    Serial.println("Objekt umfahren");
+    analogWrite(motorTreiberPin1, speed1);
+    analogWrite(motorTreiberPin2, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin4, 0);
+    delay(1000);
+    Serial.println("Drehung - Rechts Ausweichen - Ausgleich");
     analogWrite(motorTreiberPin4, speed2);
     analogWrite(motorTreiberPin3, 0);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed2);
+    delay(1000);
+  }
+  else if (abstR > abstL){
+    Serial.println("Links Ausweichen - Drehung");
+    analogWrite(motorTreiberPin4, speed2);
+    analogWrite(motorTreiberPin3, 0);
+    analogWrite(motorTreiberPin2, 0);
+    analogWrite(motorTreiberPin1, speed2);
+    delay(1000);
+    Serial.println("Objekt umfahren");
+    analogWrite(motorTreiberPin1, speed1);
+    analogWrite(motorTreiberPin2, 0);
+    analogWrite(motorTreiberPin3, speed1);
+    analogWrite(motorTreiberPin4, 0);
+    delay(1000);
+    Serial.println("Drehung - Links Ausweichen - Ausgleich");
+    analogWrite(motorTreiberPin4, 0);
+    analogWrite(motorTreiberPin3, speed2);
+    analogWrite(motorTreiberPin1, 0);
+    analogWrite(motorTreiberPin2, speed2);
     delay(1000);
   }
   else{
@@ -161,15 +185,15 @@ void setup(){
 void loop(){
   while(digitalRead(startPinRP) == HIGH){
     abst = 0;
-    abst = messen(triggerPinM, echoPinM, "Mitte");
+    abst = messen(triggerPinM, echoPinM, "Abstand von US-Mitte");
     fahren();
     sensors.requestTemperatures();
     tempLanze = (sensors.getTempCByIndex(0));
     if(abst<=50){
       bremsen();
-      abstL = pingLR(triggerPinL, echoPinL, "Links");
+      abstL = pingLR(triggerPinL, echoPinL, "Echo-Links");
       delay(200);
-      abstR = pingLR(triggerPinR, echoPinR, "Rechts");
+      abstR = pingLR(triggerPinR, echoPinR, "Echo-Rechts");
       delay(200);
       abstVgl(abstL, abstR);
       Serial.print("Temperatur an Lanze: ");
