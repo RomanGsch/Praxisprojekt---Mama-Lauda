@@ -8,9 +8,6 @@ DallasTemperature sensors(&oneWire);
 //Lanze
 int tempLanze;
 
-//start
-int startPinRP = A0;
-
 //US1-Mitte
 const int triggerPinM = 3;
 const int echoPinM = 8;
@@ -153,18 +150,21 @@ void setup(){
     pinMode(echoPinR, INPUT);
     pinMode(triggerPinH, OUTPUT);
     pinMode(echoPinH, INPUT);
-    pinMode(startPin, INPUT);
+    pinMode(A0, INPUT);
     sensors.begin();
 
 }
 
 void loop(){
-  while(digitalRead(startPinRP) == HIGH){
-    abst = 0;
+  Serial.println(digitalRead(A0));
+  delay(500);
+  if(digitalRead(A0)){
     abst = messen(triggerPinM, echoPinM, "Mitte");
+    abstlinks = messen(triggerPinL, echoPinL, "Links");
+    abstrechts = messen(triggerPinR, echoPinR, "Rechts");
     fahren();
-    sensors.requestTemperatures();
-    tempLanze = (sensors.getTempCByIndex(0));
+    //sensors.requestTemperatures();
+    //tempLanze = (sensors.getTempCByIndex(0));
     if(abst<=50){
       bremsen();
       abstL = pingLR(triggerPinL, echoPinL, "Links");
@@ -173,11 +173,14 @@ void loop(){
       delay(200);
       abstVgl(abstL, abstR);
       Serial.print("Temperatur an Lanze: ");
-      Serial.print(sensors.getTempCByIndex(0));
-      Serial.println(" °C");
+      //Serial.print(sensors.getTempCByIndex(0));
+      //Serial.println(" °C");
     }
     else{
       fahren();
     }
+  }
+  else{
+    bremsen();
   }
 }
