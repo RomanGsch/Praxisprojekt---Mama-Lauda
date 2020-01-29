@@ -3,8 +3,8 @@ import time
 # TODO: kalibrierung einbauen
 sensor = py_qmc5883l.QMC5883L()
 startwinkel = int(sensor.get_bearing())
-minusRange = startwinkel - 45
-plusRange = startwinkel +45
+minusRange = startwinkel - 30
+plusRange = startwinkel +30
 
 entfernung = 0
 

@@ -1,17 +1,22 @@
 import RPi.GPIO as GPIO
+import time
 
 counter = 0
-pin_rpm_left = 6  # lt. schaltplan
-pin_rpm_right = 13  # lt. schaltplan
+pin_rpm = 6  # lt. schaltplan
+led_pin = 4
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(pin_rpm_left, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(pin_rpm_right, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(pin_rpm, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(led_pin, GPIO.OUT, initial=GPIO.LOW)
+GPIO.output(led_pin, GPIO.HIGH)
 
-rpm_left = GPIO.input(pin_rpm_left)
-rpm_right = GPIO.input(pin_rpm_right)
+last_state = False
 
-if (rpm_left and rpm_right) is True:
-    counter += 1
+while True:
+    current_state = GPIO.input(pin_rpm)
     print(counter)
+    if current_state != last_state:
+        counter += 1
+        last_state = current_state
+    
