@@ -1,8 +1,10 @@
+# coding=utf8
 import tkinter as tk
 from w1thermsensor import W1ThermSensor
 import RPi.GPIO as GPIO
 import threading
 import json
+import webbrowser
 
 
 class Mainframe(tk.Frame):
@@ -27,8 +29,9 @@ class Mainframe(tk.Frame):
         tk.Label(self,textvariable = self.Magneto).pack()
         tk.Button(self, text="Starten", command=self.start_stop).pack()
         tk.Button(self, text="Stop", command=self.start_stop).pack()
-        tk.Button(self, text="Licht", command=self.licht_luft).pack()
-        self.TimerInterval = 2000  # millisec
+        tk.Button(self, text="Licht Ein", command=self.licht_luft_ein).pack()
+        tk.Button(self, text="Licht Aus", command=self.licht_luft_aus).pack()
+        self.TimerInterval = 500  # millisec
         
         # variable for dummy GetTemp
         self.temp = 0
@@ -44,41 +47,57 @@ class Mainframe(tk.Frame):
         self.Rauch.set(self.rauch)
         self.Magneto.set(self.winkel)
         
+        try:
+            file = open("/home/pi/Desktop/unfall_data_temp.json")
+            content_file = file.read()
+            content = json.loads(content_file)
+            self.temp_wert = content["TemperaturSensor"]["Temperatur"]
+            self.temp = "Temperatur: {}°C".format(self.temp_wert)
+            file.close()
+            if self.temp_wert > 30:
+                self.start_stop()
+                print("zu heiß, stop...")
+            print(self.temp)
+        except Exception as e:
+            print("Schon offen [Temperatur]: {}".format(e))
+            
+        try: 
+            file = open("/home/pi/Desktop/unfall_data_rauch.json")
+            content_file = file.read()
+            content = json.loads(content_file)
+            self.rauch_wert = content["RauchSensor"]["Rauch"]
+            self.rauch = "Rauch: {}ppm".format(self.rauch_wert)
+            file.close()
+            if self.rauch_wert > 1.5:
+                self.licht_luft_ein()
+            print(self.rauch)
+        except Exception as e:
+            print("Schon offen [Rauch]: {}".format(e))
         
-        file = open("/home/pi/Desktop/unfall_data_temp.json")
-        content_file = file.read()
-        content = json.loads(content_file)
-        self.temp = content["TemperaturSensor"]["Temperatur"]
-        self.temp = "Temperatur: {}°C".format(self.temp)
-        file.close()
-        print(self.temp)
-        
-        file = open("/home/pi/Desktop/unfall_data_rauch.json")
-        content_file = file.read()
-        content = json.loads(content_file)
-        self.rauch = content["RauchSensor"]["Rauch"]
-        self.rauch = "Rauch: {}ppm".format(self.rauch)
-        file.close()
-        print(self.rauch)
-        
-        file = open("/home/pi/Desktop/unfall_data_magneto.json")
-        content_file = file.read()
-        content = json.loads(content_file)
-        self.winkel = content["MagnetoSensor"]["Winkel"]
-        self.winkel = "Winkel: {}°".format(self.winkel)
-        file.close()
-        print(self.winkel)
+        try:
+            file = open("/home/pi/Desktop/unfall_data_magneto.json")
+            content_file = file.read()
+            content = json.loads(content_file)
+            self.winkel_wert = content["MagnetoSensor"]["Winkel"]
+            self.winkel = "Winkel: {}°".format(self.winkel_wert)
+            file.close()
+            print(self.winkel)
+        except Exception as e:
+            print("Schon offen [Winkel]: {}".format(e))
 
         # Now repeat call
         self.after(self.TimerInterval, self.GetTemp)
-        
-    def licht_luft(self):
+
+    def licht_luft_aus(self):
         licht_luft_pin = 27
-        if GPIO.input(licht_luft_pin) == GPIO.LOW:
-            GPIO.output(licht_luft_pin, GPIO.HIGH)
-            print("geschalten")
-        else:
-            GPIO.output(licht_luft_pin, GPIO.LOW)
+        GPIO.output(licht_luft_pin, GPIO.LOW)
+        print("aus geschalten")
+
+    def licht_luft_ein(self):
+        licht_luft_pin = 27
+        GPIO.output(licht_luft_pin, GPIO.HIGH)
+        print("ein geschalten")
+            
 
     def start_stop(self):
         start_stop_pin = 17
@@ -114,5 +133,7 @@ if __name__ == '__main__':
     GPIO.setmode(GPIO.BCM)#
     GPIO.setup(licht_luft_pin, GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(start_stop_pin, GPIO.OUT, initial=GPIO.LOW)
+    
+    webbrowser.open("https://192.168.18.80:8000")
     
     App()
