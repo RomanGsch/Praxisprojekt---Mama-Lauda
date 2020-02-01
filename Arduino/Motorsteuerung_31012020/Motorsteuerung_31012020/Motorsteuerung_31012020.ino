@@ -62,21 +62,21 @@ void abstVgl(int abstL, int abstR){
     analogWrite(motorTreiberPin3, speed2);
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed2);
-    delay(1000);
+    delay(900);
     bremsen();
     Serial.println("Objekt umfahren");
     analogWrite(motorTreiberPin1, speed1);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin3, speed1);
     analogWrite(motorTreiberPin4, 0);
-    delay(2000);
+    delay(1000);
     bremsen();
     Serial.println("Drehung - Rechts Ausweichen - Ausgleich");
     analogWrite(motorTreiberPin4, speed2);
     analogWrite(motorTreiberPin3, 0);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed2);
-    delay(1000);
+    delay(850);
     bremsen();
   }
   else if (abstR > abstL){
@@ -85,21 +85,21 @@ void abstVgl(int abstL, int abstR){
     analogWrite(motorTreiberPin3, 0);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed2);
-    delay(1000);
+    delay(900);
     bremsen();
     Serial.println("Objekt umfahren");
     analogWrite(motorTreiberPin1, speed1);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin3, speed1);
     analogWrite(motorTreiberPin4, 0);
-    delay(2000);
+    delay(1000);
     bremsen();
     Serial.println("Drehung - Links Ausweichen - Ausgleich");
     analogWrite(motorTreiberPin4, 0);
     analogWrite(motorTreiberPin3, speed2);
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed2);
-    delay(1000);
+    delay(900);
     bremsen();
   }
   else{
@@ -145,17 +145,22 @@ void setup(){
 }
 
 void loop(){
-  abst = messen(triggerPinM, echoPinM, "Mitte messen");
-  if(digitalRead(start == 1)){
+  if (digitalRead(start)){
+    abst = messen(triggerPinM, echoPinM, "Mitte messen");
+    abstlinks = messen(triggerPinL, echoPinL, "Links");
+    abstrechts = messen(triggerPinR, echoPinR, "Rechts");
+    fahren();
+    if(abst<=30 || abstlinks<=20 || abstrechts<=20){
+      bremsen();
+      abstL = pingLR(triggerPinL, echoPinL, "Links messen - Ping");
+      delay(200);
+      abstR = pingLR(triggerPinR, echoPinR, "Rechts messen - Ping");
+      delay(200);
+      abstVgl(abstL, abstR);
+    }
+    else{
     fahren();
     }
-  else if(abst<=30){
-    bremsen();
-    abstL = pingLR(triggerPinL, echoPinL, "Links messen - Ping");
-    delay(200);
-    abstR = pingLR(triggerPinR, echoPinR, "Rechts messen - Ping");
-    delay(200);
-    abstVgl(abstL, abstR);
   }
   else{
     bremsen();

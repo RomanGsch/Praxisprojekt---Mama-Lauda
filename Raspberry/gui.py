@@ -5,6 +5,7 @@ import RPi.GPIO as GPIO
 import threading
 import json
 import webbrowser
+from subprocess import Popen
 
 
 class Mainframe(tk.Frame):
@@ -29,16 +30,29 @@ class Mainframe(tk.Frame):
         self.Entfernung = tk.IntVar()
 
         # Labels
+        tk.Label(self, text="---------------------------------").pack()
         tk.Label(self, textvariable=self.Temperatur).pack()
         tk.Label(self, textvariable=self.Rauch).pack()
         tk.Label(self, textvariable=self.Magneto).pack()
         tk.Label(self, textvariable=self.Entfernung).pack()
+        tk.Label(self, text="---------------------------------").pack()
 
         # Buttons
-        tk.Button(self, text="Starten", command=self.start_stop).pack()
-        tk.Button(self, text="Stop", command=self.start_stop).pack()
-        tk.Button(self, text="Licht Ein", command=self.licht_luft_ein).pack()
-        tk.Button(self, text="Licht Aus", command=self.licht_luft_aus).pack()
+        button_height = 5
+        button_width = 15
+        start_but = tk.Button(self, text="Starten", command=self.start_stop, height = button_height, width = button_width).pack()
+        stop_but = tk.Button(self, text="Stop", command=self.start_stop, height = button_height, width = button_width).pack()
+        l_ein_but = tk.Button(self, text="Licht Ein", command=self.licht_luft_ein, height = button_height, width = button_width).pack()
+        l_aus_but = tk.Button(self, text="Licht Aus", command=self.licht_luft_aus, height = button_height, width = button_width).pack()
+        sens_on_but = tk.Button(self, text="Sensors ON", command=self.sensors_on, height = button_height, width = button_width).pack()
+        #start_but.grid(row=0, column=0)
+        #stop_but.gri(row=1, column=0)
+        #l_ein_but.grid(row=0, column=1)
+        #l_aus_but.grid(row=1, column=1)
+        #sens_on_but.grid(row=0, column=0)
+        
+        tk.Label(self, text="---------------------------------").pack()
+        
         self.TimerInterval = 500  # millisec
 
         # Variablen für Get_Sens_Data
@@ -132,6 +146,12 @@ class Mainframe(tk.Frame):
         else:
             GPIO.output(self.start_stop_pin, GPIO.LOW)
 
+    def sensors_on(self):
+        try:
+            Popen(["python3", "/home/pi/PyProjects/Praxisprojekt---Mama-Lauda/Raspberry/get_sens_data.py"])
+            print("get_sens_data.py gestartet")
+        except Exception as e:
+            print("fehler beim starten: get_sens_data.py: {}".format(e))
 
 class App(tk.Tk):
     def __init__(self, licht_luft_pin, start_stop_pin):
@@ -159,6 +179,6 @@ if __name__ == '__main__':
     GPIO.setup(licht_pin, GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(start_pin, GPIO.OUT, initial=GPIO.LOW)
 
-    webbrowser.open("https://192.168.18.80:8000")
+    webbrowser.open("http://192.168.18.80:8000")
 
     App(licht_pin, start_pin)
