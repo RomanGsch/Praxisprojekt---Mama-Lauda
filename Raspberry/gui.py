@@ -10,7 +10,7 @@ import webbrowser
 class Mainframe(tk.Frame):
     """Für den Hauptframe"""
 
-    def __init__(self, start_stop_pin, licht_luft_pin, master, *args, **kwargs):
+    def __init__(self, master, start_stop_pin, licht_luft_pin, *args, **kwargs):
         # *args packs positional arguments into tuple args
         # **kwargs packs keyword arguments into dict kwargs
 
@@ -128,7 +128,7 @@ class App(tk.Tk):
 
         self.title('Mama Lauda')
         self.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        Mainframe(self, self.licht_luft_pin, self.start_stop_pin).pack()
+        Mainframe(self, licht_luft_pin=self.licht_luft_pin, start_stop_pin=self.start_stop_pin).pack()
 
         self.mainloop()
 
