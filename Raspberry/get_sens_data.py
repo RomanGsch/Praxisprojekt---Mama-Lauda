@@ -121,7 +121,7 @@ class Entfernung(threading.Thread):
                     last_state = current_state
                 Entfernung_Data = {
                     "RPMSensor": {
-                        "Entvernung": entfernung
+                        "Entfernung": entfernung
                         }
                     }
 

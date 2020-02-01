@@ -32,7 +32,7 @@ class Mainframe(tk.Frame):
         tk.Label(self, textvariable=self.Temperatur).pack()
         tk.Label(self, textvariable=self.Rauch).pack()
         tk.Label(self, textvariable=self.Magneto).pack()
-        tk.Label(self, textvariable=self.Magneto).pack()
+        tk.Label(self, textvariable=self.Entfernung).pack()
 
         # Buttons
         tk.Button(self, text="Starten", command=self.start_stop).pack()
@@ -107,10 +107,10 @@ class Mainframe(tk.Frame):
             content_file = file.read()
             content = json.loads(content_file)
             self.entfernung_wert = content["RPMSensor"]["Entfernung"]
-            self.winkel = "Entfernung: {}°".format(self.winkel_wert)
+            self.entfernung = "Entfernung: {}m".format(self.entfernung_wert)
             file.close()
 
-            print(self.Entfernung)
+            print(self.entfernung)
             
         except Exception as e:
             print("Schon offen [Entfernung]: {}".format(e))
