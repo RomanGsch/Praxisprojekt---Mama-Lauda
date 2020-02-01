@@ -1,12 +1,12 @@
 # coding=utf8
-
-import w1thermsensor
 import RPi.GPIO as GPIO
-import time
 import threading
-from gas_detection import GasDetection
-import json
 import py_qmc5883l
+import w1thermsensor
+from gas_detection import GasDetection
+from json import dump
+from time import sleep
+
 
 
 class Temperatur(threading.Thread):
@@ -28,11 +28,12 @@ class Temperatur(threading.Thread):
             }
                 
             with open("/home/pi/Desktop/unfall_data_temp.json", 'w') as file:
-                json.dump(Temperatur_Data, file)
+                dump(Temperatur_Data, file)  # json.dump()
                 file.close()
             print(self.temperatur)
-            time.sleep(0.5)
-        
+            sleep(0.5)
+
+
 class Rauch(threading.Thread):
     """Um auf Sensorwerte zu kommen"""
     def __init__(self):
@@ -50,15 +51,16 @@ class Rauch(threading.Thread):
             print('SMOKE: {} ppm\n'.format(ppm[rauch_sens.SMOKE_GAS]))
             Rauch_Data = {
                 "RauchSensor": {
-                    "CO": ppm[rauch_sens.CO_GAS],
-                    "LPG": ppm[rauch_sens.LPG_GAS],
-                    "Rauch": ppm[rauch_sens.SMOKE_GAS]
+                    "CO": round(ppm[rauch_sens.CO_GAS], 4),
+                    "LPG": round(ppm[rauch_sens.LPG_GAS], 4),
+                    "Rauch": round(ppm[rauch_sens.SMOKE_GAS], 4)
                     }
                 }
             with open("/home/pi/Desktop/unfall_data_rauch.json", 'w') as file:
-                json.dump(Rauch_Data, file)
+                dump(Rauch_Data, file)  # json.dump()
                 file.close()
-            time.sleep(0.5)
+            sleep(0.5)
+
 
 class Magneto(threading.Thread):
     """Um auf Sensorwerte zu kommen"""
@@ -89,11 +91,12 @@ class Magneto(threading.Thread):
                     "Winkel": messwinkel
                     }
                 }
+
             with open("/home/pi/Desktop/unfall_data_magneto.json", 'w') as file:
-                json.dump(Magneto_Data, file)
+                dump(Magneto_Data, file)  # json.dump()
                 file.close()
             print("Winkel: {}".format(messwinkel))
-            time.sleep(0.5)
+            sleep(0.5)
 
 
 if __name__ == '__main__':
