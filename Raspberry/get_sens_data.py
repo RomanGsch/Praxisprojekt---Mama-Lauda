@@ -88,10 +88,11 @@ class Magneto(threading.Thread):
 
 class Entfernung(threading.Thread):
     """entfernung messen"""
-    def __init__(self):
+    def __init__(self, pin_rpm):
         threading.Thread.__init__(self)
         self.deamon = True
         self.temperatur = 0
+        self.pin_rpm = pin_rpm
 
     def run(self):
         magneto_sens = py_qmc5883l.QMC5883L()
@@ -105,16 +106,16 @@ class Entfernung(threading.Thread):
 
         # für rpm
         entfernung = 0
-        pin_rpm = 6
+
         last_state = False
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(pin_rpm, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.pin_rpm, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         while True:
             messwinkel = int(magneto_sens.get_bearing())
             if messwinkel in range(minusRange, plusRange):
-                current_state = GPIO.input(pin_rpm)
+                current_state = GPIO.input(self.pin_rpm)
                 print(entfernung)
                 if current_state != last_state:
                     entfernung += 1
@@ -138,7 +139,7 @@ if __name__ == '__main__':
     temp_thread = Temperatur()
     rauch_thread = Rauch()
     magneto_thread = Magneto()
-    entfernung_thread = Entfernung()
+    entfernung_thread = Entfernung(pin_rpm=6)
     temp_thread.start()
     rauch_thread.start()
     magneto_thread.start()
