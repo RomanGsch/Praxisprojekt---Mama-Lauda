@@ -12,7 +12,7 @@ from http import server
 PAGE="""\
 <html>
 <head>
-<title>Raspberry Pi - Surveillance Camera</title>
+<title>MAMA LAUDA - CAM</title>
 </head>
 <body>
 <center><h1>MAMA LAUDA - CAM</h1></center>

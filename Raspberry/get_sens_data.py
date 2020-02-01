@@ -95,14 +95,14 @@ class Entfernung(threading.Thread):
         self.pin_rpm = pin_rpm
 
     def run(self):
-        magneto_sens = py_qmc5883l.QMC5883L()
-        startwinkel = int(magneto_sens.get_bearing())
-        minusRange = startwinkel - 30
-        plusRange = startwinkel + 30
+        #magneto_sens = py_qmc5883l.QMC5883L()
+        #startwinkel = int(magneto_sens.get_bearing())
+        #minusRange = startwinkel - 30
+        #plusRange = startwinkel + 30
 
-        print("startwinkel = {}".format(startwinkel))
-        print("minusRange = {}".format(minusRange))
-        print("plusRange = {}".format(plusRange))
+        #print("startwinkel = {}".format(startwinkel))
+        #print("minusRange = {}".format(minusRange))
+        #print("plusRange = {}".format(plusRange))
 
         # für rpm
         entfernung = 0
@@ -113,25 +113,23 @@ class Entfernung(threading.Thread):
         GPIO.setup(self.pin_rpm, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         while True:
-            messwinkel = int(magneto_sens.get_bearing())
-            if messwinkel in range(minusRange, plusRange):
-                current_state = GPIO.input(self.pin_rpm)
-                print(entfernung)
-                if current_state != last_state:
-                    entfernung += 1
-                    last_state = current_state
+            #messwinkel = int(magneto_sens.get_bearing())
+            #if messwinkel in range(minusRange, plusRange):
+            current_state = GPIO.input(self.pin_rpm)
+            if current_state != last_state:
+                entfernung += 0.065*3.14/40
+                last_state = current_state
                 Entfernung_Data = {
                     "RPMSensor": {
-                        "Entfernung": entfernung
+                        "Entfernung": round(entfernung, 3)
                         }
                     }
 
                 with open("/home/pi/Desktop/unfall_data_entfernung.json", 'w') as file:
                     dump(Entfernung_Data, file)  # json.dump()
                     file.close()
-                print("Entfernung: {}\n".format(entfernung))
-            sleep(0.1)    
-
+                print("Entfernung: {}\n".format(entfernung))    
+            #sleep(0.1)
 
 if __name__ == '__main__':
     threads = []
