@@ -8,7 +8,6 @@ from json import dump
 from time import sleep
 
 
-
 class Temperatur(threading.Thread):
     """Um auf Sensorwerte zu kommen"""
     def __init__(self):
@@ -30,7 +29,7 @@ class Temperatur(threading.Thread):
             with open("/home/pi/Desktop/unfall_data_temp.json", 'w') as file:
                 dump(Temperatur_Data, file)  # json.dump()
                 file.close()
-            print(self.temperatur)
+            print("Temperatur: {}\n".format(self.temperatur))
             sleep(0.5)
 
 
@@ -46,9 +45,6 @@ class Rauch(threading.Thread):
         rauch_sens = GasDetection()
         while True:
             ppm = rauch_sens.percentage()
-            print('CO: {} ppm'.format(ppm[rauch_sens.CO_GAS]))
-            print('LPG: {} ppm'.format(ppm[rauch_sens.LPG_GAS]))
-            print('SMOKE: {} ppm\n'.format(ppm[rauch_sens.SMOKE_GAS]))
             Rauch_Data = {
                 "RauchSensor": {
                     "CO": round(ppm[rauch_sens.CO_GAS], 4),
@@ -59,6 +55,9 @@ class Rauch(threading.Thread):
             with open("/home/pi/Desktop/unfall_data_rauch.json", 'w') as file:
                 dump(Rauch_Data, file)  # json.dump()
                 file.close()
+            print('CO: {} ppm'.format(ppm[rauch_sens.CO_GAS]))
+            print('LPG: {} ppm'.format(ppm[rauch_sens.LPG_GAS]))
+            print('SMOKE: {} ppm\n'.format(ppm[rauch_sens.SMOKE_GAS]))
             sleep(0.5)
 
 
@@ -71,21 +70,9 @@ class Magneto(threading.Thread):
         
     def run(self):
         magneto_sens = py_qmc5883l.QMC5883L()
-        startwinkel = int(magneto_sens.get_bearing())
-        minusRange = startwinkel - 30
-        plusRange = startwinkel +30
-
-        entfernung = 0
-
-        # print("startwinkel = {}".format(startwinkel))
-        # print("minusRange = {}".format(minusRange))
-        # print("plusRange = {}".format(plusRange))
 
         while True:
             messwinkel = int(magneto_sens.get_bearing())
-            if messwinkel in range(minusRange, plusRange):
-                #hier auswertung der länge
-                entfernung += 1
             Magneto_Data = {
                 "MagnetoSensor": {
                     "Winkel": messwinkel
@@ -95,8 +82,53 @@ class Magneto(threading.Thread):
             with open("/home/pi/Desktop/unfall_data_magneto.json", 'w') as file:
                 dump(Magneto_Data, file)  # json.dump()
                 file.close()
-            print("Winkel: {}".format(messwinkel))
+            print("Winkel: {}\n".format(messwinkel))
             sleep(0.5)
+
+
+class Entfernung(threading.Thread):
+    """entfernung messen"""
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.deamon = True
+        self.temperatur = 0
+
+    def run(self):
+        magneto_sens = py_qmc5883l.QMC5883L()
+        startwinkel = int(magneto_sens.get_bearing())
+        minusRange = startwinkel - 30
+        plusRange = startwinkel + 30
+
+        print("startwinkel = {}".format(startwinkel))
+        print("minusRange = {}".format(minusRange))
+        print("plusRange = {}".format(plusRange))
+
+        # für rpm
+        entfernung = 0
+        pin_rpm = 6
+        last_state = False
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(pin_rpm, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+        while True:
+            messwinkel = int(magneto_sens.get_bearing())
+            if messwinkel in range(minusRange, plusRange):
+                current_state = GPIO.input(pin_rpm)
+                print(entfernung)
+                if current_state != last_state:
+                    entfernung += 1
+                    last_state = current_state
+                Entfernung_Data = {
+                    "RPMSensor": {
+                        "Entvernung": entfernung
+                        }
+                    }
+
+                with open("/home/pi/Desktop/unfall_data_entfernung.json", 'w') as file:
+                    dump(Entfernung_Data, file)  # json.dump()
+                    file.close()
+                print("Entfernung: {}\n".format(entfernung))
 
 
 if __name__ == '__main__':
@@ -105,8 +137,10 @@ if __name__ == '__main__':
     temp_thread = Temperatur()
     rauch_thread = Rauch()
     magneto_thread = Magneto()
+    entfernung_thread = Entfernung()
     temp_thread.start()
     rauch_thread.start()
     magneto_thread.start()
+    entfernung_thread.start()
     
-    threads.append(temp_thread)
+    #threads.append(temp_thread)
