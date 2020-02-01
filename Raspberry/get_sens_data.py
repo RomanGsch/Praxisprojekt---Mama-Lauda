@@ -57,7 +57,7 @@ class Rauch(threading.Thread):
                 file.close()
             print('CO: {} ppm'.format(ppm[rauch_sens.CO_GAS]))
             print('LPG: {} ppm'.format(ppm[rauch_sens.LPG_GAS]))
-            print('SMOKE: {} ppm\n'.format(ppm[rauch_sens.SMOKE_GAS]))
+            print('Rauch: {} ppm\n'.format(ppm[rauch_sens.SMOKE_GAS]))
             sleep(0.5)
 
 
@@ -129,6 +129,7 @@ class Entfernung(threading.Thread):
                     dump(Entfernung_Data, file)  # json.dump()
                     file.close()
                 print("Entfernung: {}\n".format(entfernung))
+            sleep(0.1)    
 
 
 if __name__ == '__main__':

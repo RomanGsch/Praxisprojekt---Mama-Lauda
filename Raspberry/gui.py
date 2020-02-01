@@ -26,10 +26,12 @@ class Mainframe(tk.Frame):
         self.Temperatur = tk.IntVar()
         self.Rauch = tk.IntVar()
         self.Magneto = tk.IntVar()
+        self.Entfernung = tk.IntVar()
 
         # Labels
         tk.Label(self, textvariable=self.Temperatur).pack()
         tk.Label(self, textvariable=self.Rauch).pack()
+        tk.Label(self, textvariable=self.Magneto).pack()
         tk.Label(self, textvariable=self.Magneto).pack()
 
         # Buttons
@@ -43,6 +45,7 @@ class Mainframe(tk.Frame):
         self.temp = 0
         self.rauch = 0
         self.winkel = 0
+        self.entfernung = 0
 
         # call Get Temp which will call itself after a delay
         self.get_data()
@@ -51,6 +54,7 @@ class Mainframe(tk.Frame):
         self.Temperatur.set(self.temp)
         self.Rauch.set(self.rauch)
         self.Magneto.set(self.winkel)
+        self.Entfernung.set(self.entfernung)
 
         try:
             file = open("/home/pi/Desktop/unfall_data_temp.json")
@@ -94,8 +98,22 @@ class Mainframe(tk.Frame):
             file.close()
 
             print(self.winkel)
+            
         except Exception as e:
             print("Schon offen [Winkel]: {}".format(e))
+            
+        try:
+            file = open("/home/pi/Desktop/unfall_data_entfernung.json")
+            content_file = file.read()
+            content = json.loads(content_file)
+            self.entfernung_wert = content["RPMSensor"]["Entfernung"]
+            self.winkel = "Entfernung: {}°".format(self.winkel_wert)
+            file.close()
+
+            print(self.Entfernung)
+            
+        except Exception as e:
+            print("Schon offen [Entfernung]: {}".format(e))
 
         self.after(self.TimerInterval, self.get_data)
 
