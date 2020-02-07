@@ -1,25 +1,27 @@
-String incoming = ""; // for incoming serial data
+int x = 0;
+int y = 0;
 
-void setup() {
+void setup(){
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
-  pinMode(10, OUTPUT);
 }
 
-void loop() {
-  // send data only when you receive data:
-  Serial.print("Hello From Arduino!");
-  if (Serial.available() > 0) {
-    // read the incoming byte:
-    incoming = Serial.read();
-
-    if(incoming=="Hallo"){
-      digitalWrite(10, HIGH);
-    } else {
-      digitalWrite(10, LOW);
+void loop(){
+    if (Serial.available() > 0) {
+        Serial.write("loop_begin");
+        if (Serial.read() == "data_ready") {
+            Serial.write("ready_strecke");
+            strecke = Serial.read();
+        if (Serial.read() ==
+        }
+            strecke = Serial.read();
+            strecke = toint(strecke);
+            Serial.print("ready_drehung");
+            drehung = Serial.read();
+            Serial.println(strecke);
+            Serial.println(drehung);
+            // fahren(strecke, drehung)
+          }
+      }
     }
-    // say what you got:
-    //Serial.print("I received: ");
-    //Serial.println(incoming);
-  }
   delay(1000);
 }
