@@ -1,35 +1,67 @@
 import socket
 import json
 import serial
+import threading
 from time import sleep
 
-ip = "192.168.18.89"
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((ip, 50000))
 
-ser = serial.Serial("/dev/ttyACM0", 9600)  # change ACM number as found from ls /dev/tty/ACM*
-ser.baudrate = 9600
+class communication(threading.Thread):
+    def __init__(self, path):
+        threading.Thread.__init__(self)
+        self.deamon = True
+        self.path = path
+        
+        self.cmd = ""
+    
+    def run(self):
+        try:
+            while True:
+                # nachricht = "loop_begin"
+                # s.send(nachricht.encode())
+                # antwort = s.recv(1024)
+                # content = json.loads(antwort.decode())
+        
+                content = self.path
+                ser.reset_output_buffer()
+                ser.reset_input_buffer()
+        
+                for i in content:
+                    ser.write(i.encode("ascii"))  # utf-8
+                    # ret = ser.readline().decode("ascii")
+                    # while ret is not "":
+                    #     text = ser.readline().decode("ascii")
+                    #     print("Return: " + text)
+                    #     if text is "":
+                    #         break
+                    # print(ret)
+                    self.cmd = ser.readline().decode("ascii")  # utf-8
+                    if self.cmd == "D":
+                        self.cmd = True
+                    else:
+                        self.cmd = False
+                while self.cmd:
+                    # ser.reset_input_buffer()
+                    self.cmd = ser.readline().decode("ascii")
+                    print(self.cmd)
+                    if str(self.cmd) is "D":
+                        break
+                    else:
+                        print("waiting...")
+        
+        finally:
+            # s.close()
+            pass
 
-path = [[3000, "L"], [2400, "R"], [5600, "L"], [2000, "R"]]
 
-try:
-    while True:
-        nachricht = ser.readline()
-        if nachricht == "loop_begin":
-            s.send(nachricht.encode())
-            antwort = s.recv(1024)
-            # content = json.loads(antwort.decode())
-            content = path
-            ser.write("data_ready")
-            for i in content:
-                strecke = i[0]
-                drehung = i[1]
-                if ser.readline() == "ready_strecke":
-                    ser.write(strecke)
-                if ser.readline() == "ready_drehung":
-                    ser.write(drehung)
-        sleep(1)
+if __name__ == "__main__":
+    # ip = "192.168.18.89"
+    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # s.connect((ip, 50000))
 
-finally:
-    s.close()
+    ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM*
+    # ser.baudrate = 9600
 
+    path = ["0000X", "2400R", "5600L", "2000R", "6000L", "7899R", "2988L"]
+    threads = []
+    com_thread = communication(path)
+    com_thread.run()

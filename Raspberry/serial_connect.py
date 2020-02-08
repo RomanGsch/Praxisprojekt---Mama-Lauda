@@ -1,15 +1,14 @@
 import serial
-from time import sleep
 
-ser = serial.Serial("/dev/ttyACM0", 9600)  # change ACM number as found from ls /dev/tty/ACM*
+ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM*
 ser.baudrate = 9600
 
 while True:
-    read_ser = ser.readline()
-    # write_ser = ser.write("fahren")
-    print(read_ser)
-    if read_ser == "Hello From Arduino!":
-        print("bekommen")
-    else:
-        print("not")
-    sleep(1)
+    text = input("Eingabe: ")  # "R"
+    text_ascii = text.encode("ascii")  # + bytes([13, 10])
+    write_ser = ser.write(text_ascii)
+    text = ser.readline().decode("ascii")
+    print("Return: " + text)
+    while text is not "":
+        text = ser.readline().decode("ascii")
+        print("Return: " + text)
