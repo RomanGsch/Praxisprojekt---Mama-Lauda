@@ -3,7 +3,7 @@ int langeDec[5] = {0, 0, 0, 0, 0};
 int lange = 0;
 int drehungDec = 0;
 String drehung;
-bool dreh_ninty = 1;
+String dreh_ninty;
 
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
@@ -24,10 +24,13 @@ int speed2 = 255; //Drehen
 void richtung(String drehung){
   if (drehung == "L"){
     Serial.println("L");
-    delay(100);
-    if (Serial.available()>0){
+    Serial.println("vor delay");
+    delay(5000);
+    if (Serial.available() > 0){
+      Serial.print("vor dreh_ninty");
       dreh_ninty = Serial.read();
-      while (dreh_ninty == 1) {
+      while (dreh_ninty == "T") {
+        Serial.println("Links!");
         analogWrite(motorTreiberPin4, 0);
         analogWrite(motorTreiberPin3, speed2);
         analogWrite(motorTreiberPin1, 0);
@@ -47,7 +50,7 @@ void richtung(String drehung){
     delay(100);
     if (Serial.available() > 0) {
       dreh_ninty = Serial.read();
-      while (dreh_ninty == 0) {
+      while (dreh_ninty == "T") {
         analogWrite(motorTreiberPin4, speed2);
         analogWrite(motorTreiberPin3, 0);
         analogWrite(motorTreiberPin2, 0);
@@ -81,7 +84,7 @@ void bremsen(){
   analogWrite(motorTreiberPin3, 0);
   analogWrite(motorTreiberPin4, 0);
   delay(500);
-  Serial.println("Bremsen");
+  //Serial.println("Bremsen");
 }
 
 void setup(){
