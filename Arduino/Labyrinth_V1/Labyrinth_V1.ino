@@ -1,3 +1,9 @@
+//für serielle daten
+int langeDec[5] = {0, 0, 0, 0, 0};
+int lange = 0;
+int drehungDec = 0;
+String drehung;
+
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
 const int motorTreiberPin2  = 6; //motorTreiberPin2 -> ArduinoOut6
@@ -14,7 +20,7 @@ int speed1 = 200; //Fahren
 int speed2 = 255; //Drehen
 
 
-void richtung(char drehung){
+void richtung(String drehung){
   if (drehung == "R"){
     Serial.println("Rechts Ausweichen");
     analogWrite(motorTreiberPin4, 0);
@@ -35,7 +41,7 @@ void richtung(char drehung){
   }
 }
 
-void fahren(int strecke, char drehung){
+void fahren(int strecke, String drehung){
   analogWrite(motorTreiberPin1, speed1);
   analogWrite(motorTreiberPin2, 0);
   analogWrite(motorTreiberPin3, speed1);
@@ -61,21 +67,47 @@ void setup(){
     pinMode(motorTreiberPin3, OUTPUT);
 }
 
-int geradefahren[]={1000,2000,3000};
-int richtungen[]={1,2,1};
-int folgenAnzahl = 3;
-char loesung;
+// int geradefahren[]={1000,2000,3000};
+// int richtungen[]={1,2,1};
+// int folgenAnzahl = 3;
+// char loesung;
 
-void loop(){
-  for (int labyrinth=0; labyrinth<folgenAnzahl; labyrinth=labyrinth+1){
-    loesung(3, richtung[labyrinth]);
-    delay(geradefahren[labyrinth]);
-    //Serial.println(geradefahren);
-
-    //Serial.println(richtung);
-  }
-}
-//void loop(){
-  //if (digitalRead(start)){
-   // fahren(1000, "L");}
+// void loop(){
+//  for (int labyrinth=0; labyrinth<folgenAnzahl; labyrinth=labyrinth+1){
+//    loesung(3, richtung[labyrinth]);
+//    delay(geradefahren[labyrinth]);
+//    Serial.println(geradefahren);
+//    Serial.println(richtung);
+//  }
+// }
+// void loop(){
+//  if (digitalRead(start)){
+//    fahren(1000, "L");}
 //}
+
+void loop() {
+  if (Serial) {
+    if (Serial.available() > 0) {
+      for (int i=0; i < (sizeof(langeDec)/sizeof(langeDec[0])); i++){
+        langeDec[i] = Serial.read();
+      }
+      
+      lange = (langeDec[0]-48)*1000+(langeDec[1]-48)*100+(langeDec[2]-48)*10+(langeDec[3]-48);
+      drehungDec = langeDec[4];
+      
+      if (drehungDec == 76) {
+        drehung = "L";
+      } else if (drehungDec == 82) {
+        drehung = "R";
+      } else {
+        drehung = "no data";
+      }
+      fahren(lange, drehung);
+      }
+      Serial.println("D");
+      Serial.flush();
+    } else {
+      Serial.println("D");
+    }
+  delay(500);
+ }

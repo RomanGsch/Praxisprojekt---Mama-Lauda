@@ -42,7 +42,6 @@ if __name__ == "__main__":
     # s.connect((ip, 50000))
 
     ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM*
-    # ser.baudrate = 9600
 
     start_next_session = threading.Event()
 
