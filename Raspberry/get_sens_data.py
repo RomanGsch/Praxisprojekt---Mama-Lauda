@@ -83,7 +83,7 @@ class Magneto(threading.Thread):
                 dump(Magneto_Data, file)  # json.dump()
                 file.close()
             print("Winkel: {}\n".format(messwinkel))
-            sleep(0.5)
+            sleep(0.25)
 
 
 class Entfernung(threading.Thread):

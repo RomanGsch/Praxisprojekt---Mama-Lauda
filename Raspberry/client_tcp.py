@@ -13,21 +13,57 @@ class communication(threading.Thread):
         
         self.cmd = ""
         self.cmdTF = False
+        self.degrees1 = 0
+        self.degrees2 = 0
     
     def run(self):
         try:
             ser.reset_output_buffer()
             ser.reset_input_buffer()
             ser.write(self.path.encode("ascii"))  # utf-8
-
+            
             while not self.cmdTF:
                 self.cmd = ser.readline().decode("ascii")  # utf-8
-                print(self.cmd)
+                # print(self.cmd)
                 if str(self.cmd) == "D\r\n":
                     print("True")
                     self.cmdTF = True
                     start_next_session.set()
                     break
+                
+                elif str(self.cmd) == "R\r\n":
+                    try:
+                        file = open("/home/pi/Desktop/unfall_data_magneto.json")
+                        content_file = file.read()
+                        content = json.loads(content_file)
+                        self.degrees1 = content["MagnetoSensor"]["Winkel"]
+                        file.close()
+                    except Exception as e:
+                        print("Deg1_Error: {}".format(e))
+                        
+                    deg_calc = 0                        
+                        
+                    while deg_calc < 90:
+                        ser.write("1".encode("ascii"))
+                        print("turning: {}".format(deg_calc))
+                        
+                        try:
+                            file = open("/home/pi/Desktop/unfall_data_magneto.json")
+                            content_file = file.read()
+                            content = json.loads(content_file)
+                            self.degrees2 = content["MagnetoSensor"]["Winkel"]
+                            file.close()
+                        except Exception as e:
+                            print("Deg2_Error: {}".format(e))
+                        
+                        deg_calc = abs(self.degrees1 - self.degrees2)
+                        #deg_calc = 110
+                    
+                    ser.write("0".encode("ascii"))
+                    #print("stop turning")
+                    self.cmdTF = False
+                    break
+
                 else:
                     print("False")
                     self.cmdTF = False
@@ -40,12 +76,15 @@ if __name__ == "__main__":
     # ip = "192.168.18.89"
     # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # s.connect((ip, 50000))
-
-    ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM*
-
+    
+    try:
+        ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
+    except:
+        ser = serial.Serial("/dev/ttyACM1", 9600, timeout=2)
+        
     start_next_session = threading.Event()
 
-    path = ["0000X", "2400R", "5600L", "2000R", "6000L", "7899R", "2988L"]
+    path = ["0000X", "2000R", "2000L", "2000R", "2000L", "2000R", "2000L"]
 
     for i in path:
         com_thread = communication(i)
