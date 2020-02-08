@@ -3,7 +3,7 @@ int langeDec[5] = {0, 0, 0, 0, 0};
 int lange = 0;
 int drehungDec = 0;
 String drehung;
-int dreh_ninty = 1;
+bool dreh_ninty = 1;
 
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
@@ -25,31 +25,41 @@ void richtung(String drehung){
   if (drehung == "L"){
     Serial.println("L");
     delay(100);
-    while (dreh_ninty == 1) {
-      analogWrite(motorTreiberPin4, 0);
-      analogWrite(motorTreiberPin3, speed2);
-      analogWrite(motorTreiberPin1, 0);
-      analogWrite(motorTreiberPin2, speed2);
+    if (Serial.available()>0){
       dreh_ninty = Serial.read();
+      while (dreh_ninty == 1) {
+        analogWrite(motorTreiberPin4, 0);
+        analogWrite(motorTreiberPin3, speed2);
+        analogWrite(motorTreiberPin1, 0);
+        analogWrite(motorTreiberPin2, speed2);
+        if (Serial.available()>0){
+          dreh_ninty = Serial.read();
+        }
+      }
     }
-    Serial.println("D");
-    Serial.flush();
+    //Serial.println("D");
+    //Serial.flush();
     // delay(2500); // feinjustiert unterschiede mit den motoren
     bremsen();
-  } else if (drehung == "R"){
+  }
+  else if (drehung == "R"){
     Serial.println("R");
     delay(100);
-    while (dreh_ninty == 1){
-      analogWrite(motorTreiberPin4, speed2);
-      analogWrite(motorTreiberPin3, 0);
-      analogWrite(motorTreiberPin2, 0);
-      analogWrite(motorTreiberPin1, speed2);
+    if (Serial.available() > 0) {
       dreh_ninty = Serial.read();
+      while (dreh_ninty == 0) {
+        analogWrite(motorTreiberPin4, speed2);
+        analogWrite(motorTreiberPin3, 0);
+        analogWrite(motorTreiberPin2, 0);
+        analogWrite(motorTreiberPin1, speed2);
+        delay(100);
+        dreh_ninty = Serial.read();
+      }
     }
-    Serial.println("D");
-    Serial.flush();
+    // Serial.flush();
     // delay(2300); // feinjustiert unterschiede mit den motoren
     bremsen();
+    //Serial.println("D"); // für done
   }
 }
 
@@ -62,6 +72,7 @@ void fahren(int strecke, String drehung){
   delay(strecke);
   bremsen();
   richtung(drehung);
+  // Serial.println("D");
 }
 
 void bremsen(){
@@ -69,7 +80,7 @@ void bremsen(){
   analogWrite(motorTreiberPin2, 0);
   analogWrite(motorTreiberPin3, 0);
   analogWrite(motorTreiberPin4, 0);
-  // delay(1000);
+  delay(500);
   Serial.println("Bremsen");
 }
 
@@ -78,24 +89,6 @@ void setup(){
     pinMode(motorTreiberPin1, OUTPUT);
     pinMode(motorTreiberPin3, OUTPUT);
 }
-
-// int geradefahren[]={1000,2000,3000};
-// int richtungen[]={1,2,1};
-// int folgenAnzahl = 3;
-// char loesung;
-
-// void loop(){
-//  for (int labyrinth=0; labyrinth<folgenAnzahl; labyrinth=labyrinth+1){
-//    loesung(3, richtung[labyrinth]);
-//    delay(geradefahren[labyrinth]);
-//    Serial.println(geradefahren);
-//    Serial.println(richtung);
-//  }
-// }
-// void loop(){
-//  if (digitalRead(start)){
-//    fahren(1000, "L");}
-//}
 
 void loop() {
   if (Serial) {
@@ -115,7 +108,7 @@ void loop() {
         drehung = "no data";
       }
       fahren(lange, drehung);
-      }
+    }
       Serial.println("D");
       Serial.flush();
     }

@@ -24,14 +24,14 @@ class communication(threading.Thread):
             
             while not self.cmdTF:
                 self.cmd = ser.readline().decode("ascii")  # utf-8
-                # print(self.cmd)
-                if str(self.cmd) == "D\r\n":
+                print(self.cmd)
+                if str(self.cmd) == "D\r\n":  # D for Done
                     print("True")
                     self.cmdTF = True
                     start_next_session.set()
                     break
                 
-                elif str(self.cmd) == "R\r\n":
+                elif str(self.cmd) is ("R\r\n" or "L\r\n"):
                     try:
                         file = open("/home/pi/Desktop/unfall_data_magneto.json")
                         content_file = file.read()
@@ -44,9 +44,10 @@ class communication(threading.Thread):
                     deg_calc = 0                        
                         
                     while deg_calc < 90:
+                        # ser.reset_output_buffer()
                         ser.write("1".encode("ascii"))
                         print("turning: {}".format(deg_calc))
-                        
+                        print(ser.readline())
                         try:
                             file = open("/home/pi/Desktop/unfall_data_magneto.json")
                             content_file = file.read()
@@ -57,11 +58,15 @@ class communication(threading.Thread):
                             print("Deg2_Error: {}".format(e))
                         
                         deg_calc = abs(self.degrees1 - self.degrees2)
-                        #deg_calc = 110
-                    
-                    ser.write("0".encode("ascii"))
-                    #print("stop turning")
-                    self.cmdTF = False
+                        sleep(0.1)
+                        deg_calc = 100
+
+                    ser.reset_output_buffer()
+                    ser.write(str(0).encode("ascii"))
+                    sleep(0.1)
+                    print("stop turning")
+                    print(ser.readline())
+                    self.cmdTF = True
                     break
 
                 else:
@@ -78,13 +83,13 @@ if __name__ == "__main__":
     # s.connect((ip, 50000))
     
     try:
-        ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
+        ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
     except:
-        ser = serial.Serial("/dev/ttyACM1", 9600, timeout=2)
+        ser = serial.Serial("/dev/cu.usbmodem1421", 9600, timeout=2)
         
     start_next_session = threading.Event()
 
-    path = ["0000X", "2000R", "2000L", "2000R", "2000L", "2000R", "2000L"]
+    path = ["0000X", "2000L", "2000L", "2000R", "2000L", "2000R", "2000L"]
 
     for i in path:
         com_thread = communication(i)
