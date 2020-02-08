@@ -31,7 +31,7 @@ class communication(threading.Thread):
                     start_next_session.set()
                     break
                 
-                elif str(self.cmd) is ("R\r\n" or "L\r\n"):
+                elif str(self.cmd) is "L\r\n":# or "L\r\n"):
                     try:
                         file = open("/home/pi/Desktop/unfall_data_magneto.json")
                         content_file = file.read()
@@ -43,9 +43,10 @@ class communication(threading.Thread):
                         
                     deg_calc = 0                        
                         
-                    while deg_calc < 90:
-                        # ser.reset_output_buffer()
-                        ser.write("1".encode("ascii"))
+                    while deg_calc < 60:
+                        ser.reset_output_buffer()
+                        print(deg_calc)
+                        ser.write("T".encode("ascii"))
                         print("turning: {}".format(deg_calc))
                         print(ser.readline())
                         try:
@@ -59,7 +60,7 @@ class communication(threading.Thread):
                         
                         deg_calc = abs(self.degrees1 - self.degrees2)
                         sleep(0.1)
-                        deg_calc = 100
+                        # deg_calc = 100
 
                     ser.reset_output_buffer()
                     ser.write(str(0).encode("ascii"))
@@ -83,9 +84,9 @@ if __name__ == "__main__":
     # s.connect((ip, 50000))
     
     try:
-        ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
+        ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
     except:
-        ser = serial.Serial("/dev/cu.usbmodem1421", 9600, timeout=2)
+        ser = serial.Serial("/dev/ttyACM1", 9600, timeout=2)
         
     start_next_session = threading.Event()
 
