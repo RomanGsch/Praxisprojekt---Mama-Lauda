@@ -3,6 +3,7 @@ int langeDec[5] = {0, 0, 0, 0, 0};
 int lange = 0;
 int drehungDec = 0;
 String drehung;
+int dreh_ninty = 1;
 
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
@@ -22,21 +23,32 @@ int speed2 = 255; //Drehen
 
 void richtung(String drehung){
   if (drehung == "L"){
-    Serial.println("Links Drehung");
-    analogWrite(motorTreiberPin4, 0);
-    analogWrite(motorTreiberPin3, speed2);
-    analogWrite(motorTreiberPin1, 0);
-    analogWrite(motorTreiberPin2, speed2);
-    delay(2500); // feinjustiert unterschiede mit den motoren
+    Serial.println("L");
+    delay(100);
+    while (dreh_ninty == 1) {
+      analogWrite(motorTreiberPin4, 0);
+      analogWrite(motorTreiberPin3, speed2);
+      analogWrite(motorTreiberPin1, 0);
+      analogWrite(motorTreiberPin2, speed2);
+      dreh_ninty = Serial.read();
+    }
+    Serial.println("D");
+    Serial.flush();
+    // delay(2500); // feinjustiert unterschiede mit den motoren
     bremsen();
-  } 
-  else if (drehung == "R"){
-    Serial.println("Rechts Drehung");
-    analogWrite(motorTreiberPin4, speed2);
-    analogWrite(motorTreiberPin3, 0);
-    analogWrite(motorTreiberPin2, 0);
-    analogWrite(motorTreiberPin1, speed2);
-    delay(2300); // feinjustiert unterschiede mit den motoren
+  } else if (drehung == "R"){
+    Serial.println("R");
+    delay(100);
+    while (dreh_ninty == 1){
+      analogWrite(motorTreiberPin4, speed2);
+      analogWrite(motorTreiberPin3, 0);
+      analogWrite(motorTreiberPin2, 0);
+      analogWrite(motorTreiberPin1, speed2);
+      dreh_ninty = Serial.read();
+    }
+    Serial.println("D");
+    Serial.flush();
+    // delay(2300); // feinjustiert unterschiede mit den motoren
     bremsen();
   }
 }
@@ -46,7 +58,7 @@ void fahren(int strecke, String drehung){
   analogWrite(motorTreiberPin2, 0);
   analogWrite(motorTreiberPin3, speed1);
   analogWrite(motorTreiberPin4, 0);
-  Serial.println("Fahren");
+  // Serial.println("Fahren");
   delay(strecke);
   bremsen();
   richtung(drehung);
@@ -57,7 +69,7 @@ void bremsen(){
   analogWrite(motorTreiberPin2, 0);
   analogWrite(motorTreiberPin3, 0);
   analogWrite(motorTreiberPin4, 0);
-  delay(1000);
+  // delay(1000);
   Serial.println("Bremsen");
 }
 
