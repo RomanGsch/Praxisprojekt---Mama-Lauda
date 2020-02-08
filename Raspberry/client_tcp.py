@@ -12,45 +12,28 @@ class communication(threading.Thread):
         self.path = path
         
         self.cmd = ""
+        self.cmdTF = False
     
     def run(self):
         try:
-            while True:
-                # nachricht = "loop_begin"
-                # s.send(nachricht.encode())
-                # antwort = s.recv(1024)
-                # content = json.loads(antwort.decode())
-        
-                content = self.path
-                ser.reset_output_buffer()
-                ser.reset_input_buffer()
-        
-                for i in content:
-                    ser.write(i.encode("ascii"))  # utf-8
-                    # ret = ser.readline().decode("ascii")
-                    # while ret is not "":
-                    #     text = ser.readline().decode("ascii")
-                    #     print("Return: " + text)
-                    #     if text is "":
-                    #         break
-                    # print(ret)
-                    self.cmd = ser.readline().decode("ascii")  # utf-8
-                    if self.cmd == "D":
-                        self.cmd = True
-                    else:
-                        self.cmd = False
-                while self.cmd:
-                    # ser.reset_input_buffer()
-                    self.cmd = ser.readline().decode("ascii")
-                    print(self.cmd)
-                    if str(self.cmd) is "D":
-                        break
-                    else:
-                        print("waiting...")
-        
+            ser.reset_output_buffer()
+            ser.reset_input_buffer()
+            ser.write(self.path.encode("ascii"))  # utf-8
+
+            while not self.cmdTF:
+                self.cmd = ser.readline().decode("ascii")  # utf-8
+                print(self.cmd)
+                if str(self.cmd) == "D\r\n":
+                    print("True")
+                    self.cmdTF = True
+                    start_next_session.set()
+                    break
+                else:
+                    print("False")
+                    self.cmdTF = False
+                    continue
         finally:
-            # s.close()
-            pass
+            self.cmdTF = False
 
 
 if __name__ == "__main__":
@@ -61,7 +44,11 @@ if __name__ == "__main__":
     ser = serial.Serial("/dev/cu.usbmodem1411", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM*
     # ser.baudrate = 9600
 
+    start_next_session = threading.Event()
+
     path = ["0000X", "2400R", "5600L", "2000R", "6000L", "7899R", "2988L"]
-    threads = []
-    com_thread = communication(path)
-    com_thread.run()
+
+    for i in path:
+        com_thread = communication(i)
+        com_thread.run()
+        start_next_session.wait()
