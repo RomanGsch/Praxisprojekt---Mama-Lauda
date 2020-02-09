@@ -13,8 +13,21 @@ class communication(threading.Thread):
         
         self.cmd = ""
         self.cmdTF = False
+        self.temp_degrees = 0
         self.degrees1 = 0
         self.degrees2 = 0
+
+    def get_degrees(self):
+        try:
+            file = open("/home/pi/Desktop/unfall_data_magneto.json")
+            content_file = file.read()
+            content = json.loads(content_file)
+            self.temp_degrees = content["MagnetoSensor"]["Winkel"]
+            file.close()
+        except Exception as e:
+            print("Deg_Error: {}".format(e))
+
+        return self.temp_degrees
     
     def run(self):
         try:
@@ -25,49 +38,31 @@ class communication(threading.Thread):
             while not self.cmdTF:
                 self.cmd = ser.readline().decode("ascii")  # utf-8
                 print(self.cmd)
-                if str(self.cmd) == "D\r\n":  # D for Done
+
+                # eventuell nicht mehr benötigt wenn mit drehung ist
+                if str(self.cmd) == "D\r\n":  # D for Done # eventuell kein str() benötigt
                     print("True")
                     self.cmdTF = True
                     start_next_session.set()
                     break
                 
-                elif str(self.cmd) is "L\r\n":# or "L\r\n"):
-                    try:
-                        file = open("/home/pi/Desktop/unfall_data_magneto.json")
-                        content_file = file.read()
-                        content = json.loads(content_file)
-                        self.degrees1 = content["MagnetoSensor"]["Winkel"]
-                        file.close()
-                    except Exception as e:
-                        print("Deg1_Error: {}".format(e))
+                elif str(self.cmd) is "L\r\n" or str(self.cmd) is "R\r\n":
+                    self.degrees1 = self.get_degrees()
+                    deg_calc = 0
                         
-                    deg_calc = 0                        
-                        
-                    while deg_calc < 60:
-                        ser.reset_output_buffer()
-                        print(deg_calc)
-                        ser.write("T".encode("ascii"))
+                    while deg_calc < 90:
+                        # ser.reset_output_buffer()  # eventuell nicht benötigt
+                        ser.write("0000T".encode("ascii"))
                         print("turning: {}".format(deg_calc))
-                        print(ser.readline())
-                        try:
-                            file = open("/home/pi/Desktop/unfall_data_magneto.json")
-                            content_file = file.read()
-                            content = json.loads(content_file)
-                            self.degrees2 = content["MagnetoSensor"]["Winkel"]
-                            file.close()
-                        except Exception as e:
-                            print("Deg2_Error: {}".format(e))
-                        
+                        self.degrees2 = self.get_degrees()
                         deg_calc = abs(self.degrees1 - self.degrees2)
-                        sleep(0.1)
-                        # deg_calc = 100
 
-                    ser.reset_output_buffer()
-                    ser.write(str(0).encode("ascii"))
-                    sleep(0.1)
+                    # ser.reset_output_buffer()  # eventuell nicht benötigt
+                    ser.write("0000F".encode("ascii"))
                     print("stop turning")
-                    print(ser.readline())
+                    # um diesen teil des path zu beenden
                     self.cmdTF = True
+                    start_next_session.set()
                     break
 
                 else:
