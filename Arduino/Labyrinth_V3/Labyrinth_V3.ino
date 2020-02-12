@@ -1,10 +1,12 @@
 //für serielle daten
 int lange = 0;
 char drehung;
+int drehungDec = 0;
+int langeDec[5] = {0, 0, 0, 0, 0};
 
 //Für Serial Event
 String cmd_string = "";         // a String to hold incoming data
-bool cmd_in_complete = false;  // whether the string is complete
+bool cmd_in_complete = true;  // whether the string is complete
 
 //Motor 1
 const int motorTreiberPin1 = 5; //motorTreiberPin1 -> ArduinoOut5
@@ -21,24 +23,12 @@ char start = A0;
 int speed1 = 200; //Fahren
 int speed2 = 255; //Drehen
 
-
-// ------------------------------begin Program------------------------------
-void serialEvent() {
-  while (Serial.available()) {
-    //einzelne zeichen einlesen und zusammenführen
-    char char_in = (char)Serial.read();
-    cmd_string += char_in;
-    if (char_in == '\n') {
-      cmd_in_complete = true;
-    }
-  }
-}
-
 void drehungL() {
   analogWrite(motorTreiberPin4, 0);
   analogWrite(motorTreiberPin3, speed2);
   analogWrite(motorTreiberPin1, 0);
   analogWrite(motorTreiberPin2, speed2);
+  delay(2000);
 }
 
 void drehungR() {
@@ -46,6 +36,7 @@ void drehungR() {
   analogWrite(motorTreiberPin3, 0);
   analogWrite(motorTreiberPin2, 0);
   analogWrite(motorTreiberPin1, speed2);
+  delay(2000);
 }
 
 void fahren(int strecke){
@@ -68,34 +59,40 @@ void setup(){
   Serial.begin(9600);
   pinMode(motorTreiberPin1, OUTPUT);
   pinMode(motorTreiberPin3, OUTPUT);
-  cmd_string.reserve(10); // für den inputString reservieren 10Byte
+  //cmd_string.reserve(10); // für den inputString reservieren 10Byte
 }
 
 void loop() {
-  if (cmd_in_complete) {
-    if (cmd_string.charAt(4) == 88) { //88 für X
-      // start -> nichts machen
-      // Serial.println("Start");
-    } else if (cmd_string.charAt(4) == 82 || cmd_string.charAt(4) == 76) { // 82 für R und 76 für L
-      lange = (cmd_string.charAt(0)-48)*1000 + (cmd_string.charAt(1)-48)*100 + (cmd_string.charAt(2)-48)*10 + (cmd_string.charAt(0)-48);
-      drehung = cmd_string.charAt(4);
+  if (Serial){
+    if (Serial.available() > 0) {
+      for (int i=0; i < (sizeof(langeDec)/sizeof(langeDec[0])); i++){
+        langeDec[i] = Serial.read();
+      }
+      lange = (langeDec[0]-48)*1000+(langeDec[1]-48)*100+(langeDec[2]-48)*10+(langeDec[3]-48);
+      drehungDec = langeDec[4];
+
       fahren(lange);
+      bremsen();
+      //Serial.print("vor Delay");
+      delay(1000);
+      Serial.flush();
       if (drehung == 76) { // 76 für L
         Serial.println("L");
         drehungL();
-      } else {
+      } else if (drehung == 82) {
         Serial.println("R");
         drehungR();
-      }
-    } else if (cmd_string.charAt(4) == 84) { // 84 für T
+      } else if (drehung == 84) { // 84 für T
       // nichts machen
-    } else if (cmd_string.charAt(4) == 70) { // 70 für F
+      } else if (drehung == 70) { // 70 für F
       // drehung beenden
       bremsen();
       // Serial.println("stop drehen");
-    } else {
-      // nichts machen
-      // Serial.println("no data");
+      }
     }
   }
+  Serial.println("L");
+  Serial.flush();
+  bremsen();
+  delay(500);
 }

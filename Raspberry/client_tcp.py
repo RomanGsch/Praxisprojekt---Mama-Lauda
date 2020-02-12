@@ -2,7 +2,6 @@ import socket
 import json
 import serial
 import threading
-from time import sleep
 
 
 class communication(threading.Thread):
@@ -18,6 +17,7 @@ class communication(threading.Thread):
         self.degrees2 = 0
 
     def get_degrees(self):
+        """eventuell nicht mehr benötigt, da kein Zugriff auf Magnetometer mehr gemacht wird"""
         try:
             file = open("/home/pi/Desktop/unfall_data_magneto.json")
             content_file = file.read()
@@ -39,28 +39,8 @@ class communication(threading.Thread):
                 self.cmd = ser.readline().decode("ascii")  # utf-8
                 print(self.cmd)
 
-                # eventuell nicht mehr benötigt wenn mit drehung ist
-                if str(self.cmd) == "D\r\n":  # D for Done # eventuell kein str() benötigt
+                if str(self.cmd) == "D\r\n":
                     print("True")
-                    self.cmdTF = True
-                    start_next_session.set()
-                    break
-                
-                elif str(self.cmd) is "L\r\n" or str(self.cmd) is "R\r\n":
-                    self.degrees1 = self.get_degrees()
-                    deg_calc = 0
-                        
-                    while deg_calc < 90:
-                        # ser.reset_output_buffer()  # eventuell nicht benötigt
-                        ser.write("0000T".encode("ascii"))
-                        print("turning: {}".format(deg_calc))
-                        self.degrees2 = self.get_degrees()
-                        deg_calc = abs(self.degrees1 - self.degrees2)
-
-                    # ser.reset_output_buffer()  # eventuell nicht benötigt
-                    ser.write("0000F".encode("ascii"))
-                    print("stop turning")
-                    # um diesen teil des path zu beenden
                     self.cmdTF = True
                     start_next_session.set()
                     break
@@ -73,19 +53,19 @@ class communication(threading.Thread):
             self.cmdTF = False
 
 
-def prep_koord(liste_koordinaten):
+def prep_koord(koordinaten):
     liste_koordinaten_neu = []
 
-    for i in range(0, len(liste_koordinaten)-1):
-        if i is not len(liste_koordinaten)-2:
-            x_2 = liste_koordinaten[i+2][0]
-            y_2 = liste_koordinaten[i+2][1]
+    for i in range(0, len(koordinaten)-1):
+        if i is not len(koordinaten)-2:
+            x_2 = koordinaten[i+2][0]
+            y_2 = koordinaten[i+2][1]
         else:
-            x_2 = liste_koordinaten[len(liste_koordinaten)-1][0]
-            y_2 = liste_koordinaten[len(liste_koordinaten)-1][1]
+            x_2 = koordinaten[len(koordinaten)-1][0]
+            y_2 = koordinaten[len(koordinaten)-1][1]
 
-        x_y0 = liste_koordinaten[i]
-        x_y1 = liste_koordinaten[i+1]
+        x_y0 = koordinaten[i]
+        x_y1 = koordinaten[i+1]
 
         if x_y0[1] == x_y1[1]:
             strecke = x_y1[0] - x_y0[0]
@@ -117,29 +97,46 @@ def prep_koord(liste_koordinaten):
         liste_koordinaten_neu.append(koordinate_neu)
 
     else:
-        print("finished...")
+        print("path ready...")
 
     liste_koordinaten_neu.insert(0, "0000X")
 
     return liste_koordinaten_neu
 
-if __name__ == "__main__":
-    # ip = "192.168.18.89"
-    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # s.connect((ip, 50000))
 
-    liste_koordinaten = [
-        [0000, 0000], [4000, 0000], [4000, -4000], [7000, -4000], [7000, 0000], [14000, 0000],
-        [14000, -6000], [12000, -6000], [12000, -9000], [15000, -9000], [15000, -13000]]
+if __name__ == "__main__":
+    ip = "127.0.0.1"
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((ip, 50000))
+    got_path = False
+    nachricht = "start"
+    liste_koordinaten = []
+
+    # ----------dummie files----------
+    # liste_koordinaten = [
+    #     [0000, 0000], [4000, 0000], [4000, -4000], [7000, -4000], [7000, 0000], [14000, 0000],
+    #     [14000, -6000], [12000, -6000], [12000, -9000], [15000, -9000], [15000, -13000]]
+    # path = ["0000X", "2000L", "2000L", "2000R", "2000L", "2000R", "2000L"]
+
+    while not got_path:
+        try:
+            s.send(nachricht.encode())
+            antwort = s.recv(1024)
+            print("[{}] {}".format(ip, antwort.decode()))
+            path_content = antwort
+            liste_koordinaten = json.loads(path_content)
+            if liste_koordinaten is not []:
+                got_path = True
+        finally:
+            s.close()
 
     path = prep_koord(liste_koordinaten)
     print(path)
 
-    # path = ["0000X", "2000L", "2000L", "2000R", "2000L", "2000R", "2000L"]
-
     try:
         ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
-    except:
+    except Exception as e:
+        print(e)
         ser = serial.Serial("/dev/ttyACM1", 9600, timeout=2)
         
     start_next_session = threading.Event()
