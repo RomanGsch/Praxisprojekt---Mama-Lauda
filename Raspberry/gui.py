@@ -179,6 +179,6 @@ if __name__ == '__main__':
     GPIO.setup(licht_pin, GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(start_pin, GPIO.OUT, initial=GPIO.LOW)
 
-    webbrowser.open("http://192.168.18.80:8000")
+    webbrowser.open("http://192.168.18.89:8000")
 
     App(licht_pin, start_pin)

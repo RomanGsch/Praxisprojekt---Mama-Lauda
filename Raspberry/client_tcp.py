@@ -105,7 +105,7 @@ def prep_koord(koordinaten):
 
 
 if __name__ == "__main__":
-    ip = "127.0.0.1"
+    ip = "192.168.18.75"
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, 50000))
     got_path = False
