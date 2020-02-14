@@ -33,6 +33,7 @@ class communication(threading.Thread):
         try:
             ser.reset_output_buffer()
             ser.reset_input_buffer()
+            print(self.path)
             ser.write(self.path.encode("ascii"))  # utf-8
             
             while not self.cmdTF:
