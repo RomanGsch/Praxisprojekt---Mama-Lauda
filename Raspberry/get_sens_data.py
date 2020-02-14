@@ -89,7 +89,7 @@ class Entfernung(threading.Thread):
     def __init__(self, pin_rpm):
         threading.Thread.__init__(self)
         self.deamon = True
-        self.correction = 0.7
+        self.correction = 0.5
         self.pin_rpm = pin_rpm
 
     def run(self):
