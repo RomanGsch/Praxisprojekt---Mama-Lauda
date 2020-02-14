@@ -38,7 +38,6 @@ class Rauch(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.deamon = True
-        self.temperatur = 0
         
     def run(self):
         print('Calibrating ...')
@@ -66,7 +65,6 @@ class Magneto(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.deamon = True
-        self.temperatur = 0
         
     def run(self):
         magneto_sens = py_qmc5883l.QMC5883L()
@@ -91,7 +89,7 @@ class Entfernung(threading.Thread):
     def __init__(self, pin_rpm):
         threading.Thread.__init__(self)
         self.deamon = True
-        self.temperatur = 0
+        self.correction = 0.7
         self.pin_rpm = pin_rpm
 
     def run(self):
@@ -117,7 +115,7 @@ class Entfernung(threading.Thread):
             #if messwinkel in range(minusRange, plusRange):
             current_state = GPIO.input(self.pin_rpm)
             if current_state != last_state:
-                entfernung += 0.065*3.14/40
+                entfernung += 0.065 * 3.14/40 * self.correction
                 last_state = current_state
                 Entfernung_Data = {
                     "RPMSensor": {
@@ -128,8 +126,8 @@ class Entfernung(threading.Thread):
                 with open("/home/pi/Desktop/unfall_data_entfernung.json", 'w') as file:
                     dump(Entfernung_Data, file)  # json.dump()
                     file.close()
-                print("Entfernung: {}\n".format(entfernung))    
-            #sleep(0.1)
+                print("Entfernung: {}\n".format(entfernung))
+
 
 if __name__ == '__main__':
     threads = []

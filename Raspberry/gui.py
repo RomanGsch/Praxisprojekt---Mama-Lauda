@@ -40,16 +40,11 @@ class Mainframe(tk.Frame):
         # Buttons
         button_height = 5
         button_width = 15
-        start_but = tk.Button(self, text="Starten", command=self.start_stop, height = button_height, width = button_width).pack()
-        stop_but = tk.Button(self, text="Stop", command=self.start_stop, height = button_height, width = button_width).pack()
-        l_ein_but = tk.Button(self, text="Licht Ein", command=self.licht_luft_ein, height = button_height, width = button_width).pack()
-        l_aus_but = tk.Button(self, text="Licht Aus", command=self.licht_luft_aus, height = button_height, width = button_width).pack()
-        sens_on_but = tk.Button(self, text="Sensors ON", command=self.sensors_on, height = button_height, width = button_width).pack()
-        #start_but.grid(row=0, column=0)
-        #stop_but.gri(row=1, column=0)
-        #l_ein_but.grid(row=0, column=1)
-        #l_aus_but.grid(row=1, column=1)
-        #sens_on_but.grid(row=0, column=0)
+        start_but = tk.Button(self, text="Starten", command=self.start_stop, height=button_height, width=button_width).pack()
+        stop_but = tk.Button(self, text="Stop", command=self.start_stop, height=button_height, width=button_width).pack()
+        l_ein_but = tk.Button(self, text="Licht Ein", command=self.licht_luft_ein, height=button_height, width=button_width).pack()
+        l_aus_but = tk.Button(self, text="Licht Aus", command=self.licht_luft_aus, height=button_height, width=button_width).pack()
+        sens_on_but = tk.Button(self, text="Sensors ON", command=self.sensors_on, height=button_height, width=button_width).pack()
         
         tk.Label(self, text="---------------------------------").pack()
         
@@ -152,6 +147,7 @@ class Mainframe(tk.Frame):
             print("get_sens_data.py gestartet")
         except Exception as e:
             print("fehler beim starten: get_sens_data.py: {}".format(e))
+
 
 class App(tk.Tk):
     def __init__(self, licht_luft_pin, start_stop_pin):

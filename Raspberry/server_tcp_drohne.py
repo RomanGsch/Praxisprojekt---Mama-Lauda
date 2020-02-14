@@ -68,33 +68,43 @@ def prep_koord(koordinaten):
         x_y0 = koordinaten[i]
         x_y1 = koordinaten[i+1]
 
-        if x_y0[1] == x_y1[1]:
+        y1_rangeM = int(x_y1[1]) - 5
+        y1_rangeP = int(x_y1[1]) + 5
+        x1_rangeM = int(x_y1[0]) - 5
+        x1_rangeP = int(x_y0[0]) + 5
+
+        if x_y0[1] in range(y1_rangeM, y1_rangeP):
             strecke = x_y1[0] - x_y0[0]
             if strecke > 0:
-                if y_2 < x_y1[1]:
-                    drehung = "L"  # kann auch R sein wegen versch. X/Y
-                else:
+                if y_2 not in range(y1_rangeM, y1_rangeP):
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
+                else:
+                    drehung = "L"  # kann auch R sein wegen versch. X/Y
             else:
-                if y_2 < x_y1[1]:
-                    drehung = "R"  # kann auch R sein wegen versch. X/Y
-                else:
+                if y_2 not in range(y1_rangeM, y1_rangeP):
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
+                else:
+                    drehung = "R"  # kann auch R sein wegen versch. X/Y
 
         else:
             strecke = x_y1[1] - x_y0[1]
             if strecke < 0:
-                if x_2 < x_y1[0]:
+                if x_2 not in range(x1_rangeM, x1_rangeP):
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
                 else:
                     drehung = "R"  # kann auch L sein wegen versch. X/Y
             else:
-                if x_2 < x_y1[0]:
+                if x_2 not in range(x1_rangeM, x1_rangeP):
                     drehung = "R"  # kann auch L sein wegen versch. X/Y
                 else:
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
+        strecke = int(abs(strecke))
+        streckeSTR = str(strecke)
 
-        koordinate_neu = str(abs(strecke)) + drehung
+        while len(streckeSTR) < 4:
+            streckeSTR = "0" + streckeSTR
+
+        koordinate_neu = streckeSTR + drehung
         liste_koordinaten_neu.append(koordinate_neu)
 
     else:
@@ -106,30 +116,30 @@ def prep_koord(koordinaten):
 
 
 if __name__ == "__main__":
-    ip = "192.168.18.75"
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((ip, 50000))
-    got_path = False
-    nachricht = "start"
     liste_koordinaten = []
 
-    # ----------dummie files----------
-    # liste_koordinaten = [
-    #     [0000, 0000], [4000, 0000], [4000, -4000], [7000, -4000], [7000, 0000], [14000, 0000],
-    #     [14000, -6000], [12000, -6000], [12000, -9000], [15000, -9000], [15000, -13000]]
-    # path = ["0000X", "2000L", "2000L", "2000R", "2000L", "2000R", "2000L"]
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    while not got_path:
-        try:
-            s.send(nachricht.encode())
-            antwort = s.recv(1024)
-            print("[{}] {}".format(ip, antwort.decode()))
-            path_content = antwort
-            liste_koordinaten = json.loads(path_content)
-            if liste_koordinaten is not []:
-                got_path = True
-        finally:
-            s.close()
+    s.bind(("", 50000))
+    s.listen(1)
+    try:
+        while True:
+            komm, addr = s.accept()
+            while True:
+                data = komm.recv(1024)
+                if not data:
+                    komm.close()
+                    break
+                print("[{}] {}".format(addr[0], data.decode()))
+                path_content = data
+                liste_koordinaten = json.loads(path_content)
+                if liste_koordinaten is not []:
+                    break
+            break
+
+    finally:
+        s.close()
+    # liste_koordinaten = [[63.0, 27.0], [69.0, 31.0], [181.0, 28.0], [184.0, 67.0], [114.0, 73.0], [150.0, 146.0], [155.0, 110.0], [157.0, 109.0], [191.0, 113.0], [192.0, 186.0], [121.0, 193.0], [122.0, 229.0], [120.0, 262.0], [89.0, 265.0], [98.0, 291.0], [213.0, 283.0]]
 
     path = prep_koord(liste_koordinaten)
     print(path)
