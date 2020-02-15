@@ -123,29 +123,13 @@ def prep_koord(koordinaten):
 if __name__ == "__main__":
     liste_koordinaten = []
 
-    #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    #s.bind(("", 50000))
-    #s.listen(1)
-    #try:
-        #while True:
-            #komm, addr = s.accept()
-            #while True:
-             #   data = komm.recv(1024)
-            #    if not data:
-           #         komm.close()
-          #          break
-         #       print("[{}] {}".format(addr[0], data.decode()))
-        #        path_content = data
-       #         liste_koordinaten = json.loads(path_content)
-      #          if liste_koordinaten is not []:
-     #               break
-    #        break
-
-    #finally:
-    #    s.close()
-    liste_koordinaten = [[0.0, 0.0], [15.0, 0.0], [15.0, 60.0], [75.0, 60.0], [75.0, 30.0], [45.0, 30.0], [45.0, 0.0]]
-
+    liste_koordinaten = [
+        [0.0, 0.0], [75.0, 0.0], [75.0, 60.0], [45.0, 60.0], [45.0, 90.0],
+        [15.0, 90.0], [15.0, 120.0], [75.0, 120.0], [105.0, 120.0],
+        [105.0, 90.0], [135.0, 90.0], [135.0, 120.0], [165.0, 120.0],
+        [165.0, 90.0], [195.0, 90.0], [195.0, 150.0]]
+    
     path = prep_koord(liste_koordinaten)
     print(path)
     
