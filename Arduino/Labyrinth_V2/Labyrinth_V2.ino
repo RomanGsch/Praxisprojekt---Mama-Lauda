@@ -26,15 +26,16 @@ void richtung(String drehung){
     analogWrite(motorTreiberPin3, speed2);
     analogWrite(motorTreiberPin1, 0);
     analogWrite(motorTreiberPin2, speed2);
-    delay(2000);
+    delay(1100);
     bremsen();
   } else if (drehung == "R"){
     analogWrite(motorTreiberPin4, speed2);
     analogWrite(motorTreiberPin3, 0);
     analogWrite(motorTreiberPin2, 0);
     analogWrite(motorTreiberPin1, speed2);
-    delay(2300); // feinjustiert unterschiede mit den motoren
+    delay(1400); // feinjustiert unterschiede mit den motoren
     bremsen();
+  }
 }
 
 void fahren(int strecke, String drehung){
