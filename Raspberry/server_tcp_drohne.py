@@ -73,32 +73,37 @@ def prep_koord(koordinaten):
         x1_rangeM = int(x_y1[0]) - 5
         x1_rangeP = int(x_y0[0]) + 5
 
-        if x_y0[1] in range(y1_rangeM, y1_rangeP):
+        if x_y0[1] == x_y1[1]:#in range(y1_rangeM, y1_rangeP):
             strecke = x_y1[0] - x_y0[0]
             if strecke > 0:
-                if y_2 not in range(y1_rangeM, y1_rangeP):
-                    drehung = "R"  # kann auch R sein wegen versch. X/Y
-                else:
+                #drehung = "R"
+                if y_2 < x_y1[1]:#not in range(y1_rangeM, y1_rangeP):
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
+                else:
+                    drehung = "R"  # kann auch R sein wegen versch. X/Y
             else:
-                if y_2 not in range(y1_rangeM, y1_rangeP):
-                    drehung = "L"  # kann auch R sein wegen versch. X/Y
-                else:
+                #drehung = "L"
+                if y_2 < x_y1[1]:#not in range(y1_rangeM, y1_rangeP):
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
+                else:
+                    drehung = "L"  # kann auch R sein wegen versch. X/Y
 
         else:
             strecke = x_y1[1] - x_y0[1]
-            if strecke < 0:
-                if x_2 not in range(x1_rangeM, x1_rangeP):
-                    drehung = "L"  # kann auch R sein wegen versch. X/Y
+            if strecke > 0:
+                #drehung = "L"
+                if x_2 < x_y1[0]:#not in range(x1_rangeM, x1_rangeP):
+                    drehung = "R"  # kann auch R sein wegen versch. X/Y
                 else:
-                    drehung = "R"  # kann auch L sein wegen versch. X/Y
+                    drehung = "L"  # kann auch L sein wegen versch. X/Y
             else:
-                if x_2 not in range(x1_rangeM, x1_rangeP):
-                    drehung = "R"  # kann auch L sein wegen versch. X/Y
+                #drehung = "R"
+                if x_2 < x_y1[0]:#not in range(x1_rangeM, x1_rangeP):
+                    drehung = "L"  # kann auch L sein wegen versch. X/Y
                 else:
-                    drehung = "L"  # kann auch R sein wegen versch. X/Y
-        strecke = int(abs(strecke))
+                    drehung = "R"  # kann auch R sein wegen versch. X/Y
+                    
+        strecke = int(abs(strecke))*42
         streckeSTR = str(strecke)
 
         while len(streckeSTR) < 4:
@@ -118,31 +123,17 @@ def prep_koord(koordinaten):
 if __name__ == "__main__":
     liste_koordinaten = []
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    s.bind(("", 50000))
-    s.listen(1)
-    try:
-        while True:
-            komm, addr = s.accept()
-            while True:
-                data = komm.recv(1024)
-                if not data:
-                    komm.close()
-                    break
-                print("[{}] {}".format(addr[0], data.decode()))
-                path_content = data
-                liste_koordinaten = json.loads(path_content)
-                if liste_koordinaten is not []:
-                    break
-            break
-
-    finally:
-        s.close()
-    # liste_koordinaten = [[63.0, 27.0], [69.0, 31.0], [181.0, 28.0], [184.0, 67.0], [114.0, 73.0], [150.0, 146.0], [155.0, 110.0], [157.0, 109.0], [191.0, 113.0], [192.0, 186.0], [121.0, 193.0], [122.0, 229.0], [120.0, 262.0], [89.0, 265.0], [98.0, 291.0], [213.0, 283.0]]
-
+    liste_koordinaten = [
+        [0.0, 0.0], [75.0, 0.0], [75.0, 60.0], [45.0, 60.0], [45.0, 90.0],
+        [15.0, 90.0], [15.0, 120.0], [75.0, 120.0], [105.0, 120.0],
+        [105.0, 90.0], [135.0, 90.0], [135.0, 120.0], [165.0, 120.0],
+        [165.0, 90.0], [195.0, 90.0], [195.0, 150.0]]
+    
     path = prep_koord(liste_koordinaten)
     print(path)
+    
+    # path = ['0000X', '1260L']
 
     try:
         ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
