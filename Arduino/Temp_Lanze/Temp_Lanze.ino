@@ -13,6 +13,6 @@ void setup() {
 void loop() {
   temp_lanze.requestTemperatures();
   Serial.print("Temperatur an Lanze: ");
-  Serial.print("temp_lanze.getTempCByIndex(0));
+  Serial.print(temp_lanze.getTempCByIndex(0));
   Serial.println(" °C");
 }

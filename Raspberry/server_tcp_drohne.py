@@ -68,22 +68,15 @@ def prep_koord(koordinaten):
         x_y0 = koordinaten[i]
         x_y1 = koordinaten[i+1]
 
-        y1_rangeM = int(x_y1[1]) - 5
-        y1_rangeP = int(x_y1[1]) + 5
-        x1_rangeM = int(x_y1[0]) - 5
-        x1_rangeP = int(x_y0[0]) + 5
-
-        if x_y0[1] == x_y1[1]:#in range(y1_rangeM, y1_rangeP):
+        if x_y0[1] == x_y1[1]:
             strecke = x_y1[0] - x_y0[0]
             if strecke > 0:
-                #drehung = "R"
-                if y_2 < x_y1[1]:#not in range(y1_rangeM, y1_rangeP):
+                if y_2 < x_y1[1]:
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
                 else:
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
             else:
-                #drehung = "L"
-                if y_2 < x_y1[1]:#not in range(y1_rangeM, y1_rangeP):
+                if y_2 < x_y1[1]:
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
                 else:
                     drehung = "L"  # kann auch R sein wegen versch. X/Y
@@ -91,14 +84,12 @@ def prep_koord(koordinaten):
         else:
             strecke = x_y1[1] - x_y0[1]
             if strecke > 0:
-                #drehung = "L"
-                if x_2 < x_y1[0]:#not in range(x1_rangeM, x1_rangeP):
+                if x_2 < x_y1[0]:
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
                 else:
                     drehung = "L"  # kann auch L sein wegen versch. X/Y
             else:
-                #drehung = "R"
-                if x_2 < x_y1[0]:#not in range(x1_rangeM, x1_rangeP):
+                if x_2 < x_y1[0]:
                     drehung = "L"  # kann auch L sein wegen versch. X/Y
                 else:
                     drehung = "R"  # kann auch R sein wegen versch. X/Y
@@ -123,20 +114,33 @@ def prep_koord(koordinaten):
 if __name__ == "__main__":
     liste_koordinaten = []
 
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    liste_koordinaten = [
-        [0.0, 0.0], [75.0, 0.0], [75.0, 60.0], [45.0, 60.0], [45.0, 90.0],
-        [15.0, 90.0], [15.0, 120.0], [75.0, 120.0], [105.0, 120.0],
-        [105.0, 90.0], [135.0, 90.0], [135.0, 120.0], [165.0, 120.0],
-        [165.0, 90.0], [195.0, 90.0], [195.0, 150.0]]
+    s.bind(("", 50000))
+    s.listen(1)
+    try:
+        while True:
+            komm, addr = s.accept()
+            while True:
+                data = komm.recv(1024)
+                if not data:
+                    komm.close()
+                    break
+                print("[{}] {}".format(addr[0], data.decode()))
+                path_content = data
+                liste_koordinaten = json.loads(path_content)
+                if liste_koordinaten is not []:
+                    break
+            break
+
+    finally:
+        s.close()
     
     path = prep_koord(liste_koordinaten)
     print(path)
-    
-    # path = ['0000X', '1260L']
 
     try:
-        ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)  # change ACM number as found from ls /dev/tty/ACM* /dev/cu.usbmodem1411 for mac
+        ser = serial.Serial("/dev/ttyACM0", 9600, timeout=2)
     except Exception as e:
         print(e)
         ser = serial.Serial("/dev/ttyACM1", 9600, timeout=2)
